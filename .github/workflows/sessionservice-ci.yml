@@ -1,0 +1,290 @@
+name: Session Service CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'sessionservice/**'
+      - '.github/workflows/sessionservice-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'sessionservice/**'
+      - '.github/workflows/sessionservice-ci.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+  MAVEN_OPTS: >-
+    -Dorg.slf4j.simpleLogger.showDateTime=true
+    -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      sessionservice: ${{ steps.filter.outputs.sessionservice }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            sessionservice:
+              - 'sessionservice/**'
+              - '.github/workflows/sessionservice-ci.yml'
+
+  unit-tests:
+    name: Unit Tests
+    needs: changes
+    if: ${{ needs.changes.outputs.sessionservice == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ./sessionservice
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+
+      - name: Run Unit Tests
+        run: ./mvnw test -B --file pom.xml
+
+      - name: Upload Unit Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: sessionservice/target/surefire-reports/
+          retention-days: 7
+
+      - name: Upload Unit Test Coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: sessionservice/target/site/jacoco/
+          retention-days: 7
+
+  integration-tests:
+    name: Integration Tests
+    needs: changes
+    if: ${{ needs.changes.outputs.sessionservice == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ./sessionservice
+
+    services:
+      docker:
+        image: docker:24-dind
+        options: --privileged
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run Integration Tests
+        run: ./mvnw verify -B --file pom.xml -P integration-test
+        env:
+          TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
+          TESTCONTAINERS_HOST_OVERRIDE: tcp://localhost:2375
+
+      - name: Upload Integration Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: |
+            sessionservice/target/failsafe-reports/
+            sessionservice/target/surefire-reports/
+          retention-days: 7
+
+  coverage-report:
+    name: Coverage Report
+    needs: [unit-tests, integration-tests]
+    if: always() && needs.changes.outputs.sessionservice == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: ./sessionservice
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+
+      - name: Download Unit Test Coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-coverage
+          path: sessionservice/target/site/jacoco/
+
+      - name: Generate Aggregate Coverage Report
+        run: ./mvnw jacoco:report -B --file pom.xml
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: sessionservice/target/site/jacoco/
+          retention-days: 30
+
+      - name: Coverage Report Summary
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: sessionservice/target/site/jacoco/jacoco.xml
+          badge: true
+          format: markdown
+          output: both
+          fail_below_min: false
+          thresholds: '80 90'
+
+      - name: Add Coverage PR Comment
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          recreate: true
+          path: code-coverage-results.md
+
+      - name: Check Coverage Thresholds
+        run: |
+          COVERAGE=$(grep -o 'Total[^%]*%' sessionservice/target/site/jacoco/index.html | head -1 | grep -o '[0-9]*%' | tr -d '%')
+          echo "Total coverage: ${COVERAGE}%"
+          if [ "$COVERAGE" -lt 80 ]; then
+            echo "Coverage below 80% threshold"
+            exit 1
+          fi
+
+  code-quality:
+    name: Code Quality
+    needs: changes
+    if: ${{ needs.changes.outputs.sessionservice == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ./sessionservice
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+
+      - name: Run Checkstyle
+        run: ./mvnw checkstyle:check -B --file pom.xml || true
+
+      - name: Run SpotBugs
+        run: ./mvnw spotbugs:check -B --file pom.xml || true
+
+      - name: Run ArchUnit Tests
+        run: ./mvnw test -B --file pom.xml -Dtest=ArchitectureTest
+
+      - name: Upload SpotBugs Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotbugs-report
+          path: sessionservice/target/spotbugsXml.xml
+          retention-days: 7
+
+  build:
+    name: Build & Package
+    needs: [unit-tests, integration-tests, code-quality]
+    if: always() && needs.changes.outputs.sessionservice == 'true' && (needs.unit-tests.result == 'success' || needs.unit-tests.result == 'skipped') && (needs.integration-tests.result == 'success' || needs.integration-tests.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ./sessionservice
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+
+      - name: Build Package
+        run: ./mvnw package -B --file pom.xml -DskipTests
+
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sessionservice-jar
+          path: sessionservice/target/*.jar
+          retention-days: 7
+
+  test-results:
+    name: Publish Test Results
+    needs: [unit-tests, integration-tests]
+    if: always() && needs.changes.outputs.sessionservice == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Unit Test Results
+        if: needs.unit-tests.result == 'success' || needs.unit-tests.result == 'failure'
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-results
+          path: unit-test-results/
+
+      - name: Download Integration Test Results
+        if: needs.integration-tests.result == 'success' || needs.integration-tests.result == 'failure'
+        uses: actions/download-artifact@v4
+        with:
+          name: integration-test-results
+          path: integration-test-results/
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            unit-test-results/**/*.xml
+            integration-test-results/**/*.xml
+          check_name: Test Results
+          comment_title: Test Results Summary

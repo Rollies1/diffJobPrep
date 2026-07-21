@@ -1,0 +1,72 @@
+name: Session Service PR Check
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'sessionservice/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  fast-check:
+    name: Fast PR Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    defaults:
+      run:
+        working-directory: ./sessionservice
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+
+      - name: Compile
+        run: ./mvnw compile -B --file pom.xml
+
+      - name: Run Unit Tests Only
+        run: ./mvnw test -B --file pom.xml -Dtest='!*IntegrationTest,!*ConcurrentTest'
+
+      - name: Generate Coverage
+        run: ./mvnw jacoco:report -B --file pom.xml
+
+      - name: Coverage Summary
+        run: |
+          echo "## Unit Test Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "| Package | Coverage |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|----------|" >> $GITHUB_STEP_SUMMARY
+          grep -o 'title="[^"]*%"' target/site/jacoco/index.html | sed 's/title="//g;s/"//g' | while read line; do
+            PKG=$(echo $line | cut -d' ' -f1)
+            COV=$(echo $line | grep -o '[0-9]*%' | head -1)
+            echo "| $PKG | $COV |" >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: Check Coverage Thresholds
+        run: |
+          COVERAGE=$(grep -o 'Total[^%]*%' target/site/jacoco/index.html | head -1 | grep -o '[0-9]*%' | tr -d '%')
+          echo "Total coverage: ${COVERAGE}%"
+          if [ "$COVERAGE" -lt 80 ]; then
+            echo "::error::Coverage ${COVERAGE}% is below 80% threshold"
+            exit 1
+          fi
+        shell: bash
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: target/surefire-reports/**/*.xml
+          check_name: PR Unit Tests

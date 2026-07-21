@@ -1,0 +1,121 @@
+name: Session Service SonarQube
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'sessionservice/**'
+      - '.github/workflows/sessionservice-sonar.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'sessionservice/**'
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  sonar-analysis:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: ./sessionservice
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Run Tests with Coverage
+        run: ./mvnw verify -B --file pom.xml -P coverage
+        env:
+          TESTCONTAINERS_REUSE_ENABLE: true
+
+      - name: SonarQube Scan
+        run: >
+          ./mvnw sonar:sonar -B --file pom.xml
+          -Dsonar.projectKey=codequest-sessionservice
+          -Dsonar.projectName="Session Service"
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          -Dsonar.junit.reportPaths=target/surefire-reports,target/failsafe-reports
+          -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
+          -Dsonar.qualitygate.wait=true
+          -Dsonar.coverage.exclusions=**/dto/**,**/entity/**,**/config/**
+          -Dsonar.cpd.exclusions=**/TestDataBuilder.java
+
+      - name: Check Quality Gate
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        with:
+          scanMetadataReportFile: sessionservice/target/sonar/report-task.txt
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: Upload Sonar Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonar-report
+          path: sessionservice/target/sonar/
+          retention-days: 7
+
+  sonar-pr-decoration:
+    name: Sonar PR Decoration
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    defaults:
+      run:
+        working-directory: ./sessionservice
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+
+      - name: Run Tests with Coverage
+        run: ./mvnw verify -B --file pom.xml -P coverage
+        env:
+          TESTCONTAINERS_REUSE_ENABLE: true
+
+      - name: SonarQube PR Analysis
+        run: >
+          ./mvnw sonar:sonar -B --file pom.xml
+          -Dsonar.projectKey=codequest-sessionservice
+          -Dsonar.projectName="Session Service"
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
+          -Dsonar.pullrequest.branch=${{ github.head_ref }}
+          -Dsonar.pullrequest.base=${{ github.base_ref }}
+          -Dsonar.pullrequest.github.repository=${{ github.repository }}
+          -Dsonar.qualitygate.wait=true

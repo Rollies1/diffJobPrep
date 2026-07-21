@@ -1,0 +1,78 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+      routes:
+        - id: auth_service
+          uri: ${AUTH_SERVICE_URL:http://localhost:8085}
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - StripPrefix=0
+            
+        - id: rc_webhook
+          uri: ${AUTH_SERVICE_URL:http://localhost:8085}
+          predicates:
+            - Path=/webhooks/**
+          filters:
+            - StripPrefix=0
+
+        - id: question_service
+          uri: ${QUESTION_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/v1/questions/**
+          filters:
+            - StripPrefix=0
+
+        - id: practice_service
+          uri: ${PRACTICE_SERVICE_URL:http://localhost:8086}
+          predicates:
+            - Path=/api/v1/practice/**
+          filters:
+            - StripPrefix=0
+
+        - id: session_service
+          uri: ${SESSION_SERVICE_URL:http://localhost:8087}
+          predicates:
+            - Path=/api/v1/sessions/**
+          filters:
+            - StripPrefix=0
+
+        - id: ai_service
+          uri: ${AI_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/v1/ai/**
+          filters:
+            - StripPrefix=0
+            
+        - id: notification_service
+          uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/v1/notifications/**
+          filters:
+            - StripPrefix=0
+
+jwt:
+  secret: your-256-bit-secret-your-256-bit-secret-your-256-bit-secret
+  public-paths:
+    - /api/v1/auth/login
+    - /api/v1/auth/register
+    - /api/v1/auth/refresh
+    - /.well-known/**
+    - /actuator/**
+    - /webhooks/**

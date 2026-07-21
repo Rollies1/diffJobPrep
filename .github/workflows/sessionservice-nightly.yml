@@ -1,0 +1,79 @@
+name: Session Service Nightly
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 2 AM UTC daily
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+
+jobs:
+  full-suite:
+    name: Full Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ./sessionservice
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: 'maven'
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run Full Test Suite
+        run: ./mvnw verify -B --file pom.xml
+        env:
+          TESTCONTAINERS_REUSE_ENABLE: true
+
+      - name: Generate Coverage Report
+        run: ./mvnw jacoco:report -B --file pom.xml
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./sessionservice/target/site/jacoco/jacoco.xml
+          flags: sessionservice
+          name: sessionservice-nightly
+          fail_ci_if_error: false
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-test-results
+          path: |
+            sessionservice/target/surefire-reports/
+            sessionservice/target/failsafe-reports/
+          retention-days: 30
+
+      - name: Notify on Failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Nightly tests failed for sessionservice",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Session Service Nightly Tests Failed*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

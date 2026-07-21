@@ -1,0 +1,133 @@
+name: Session Service Deploy
+
+on:
+  workflow_run:
+    workflows: ["Session Service Docker Build"]
+    types: [completed]
+    branches: [main]
+
+env:
+  KUBE_NAMESPACE: codequest
+  HELM_RELEASE: sessionservice
+  HELM_CHART: ./sessionservice/helm
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    environment:
+      name: staging
+      url: https://staging-sessionservice.codequest.knust.edu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.29.0'
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.14.0'
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: Deploy to Staging
+        run: |
+          helm upgrade --install ${{ env.HELM_RELEASE }} ${{ env.HELM_CHART }} \
+            --namespace ${{ env.KUBE_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set image.pullPolicy=Always \
+            --set spring.profiles.active=staging \
+            --wait \
+            --timeout 5m
+
+      - name: Verify Deployment
+        run: |
+          kubectl rollout status deployment/${{ env.HELM_RELEASE }} \
+            -n ${{ env.KUBE_NAMESPACE }} \
+            --timeout=5m
+
+      - name: Run Smoke Tests
+        run: |
+          kubectl run smoke-test --rm -i --restart=Never \
+            -n ${{ env.KUBE_NAMESPACE }} \
+            --image=curlimages/curl:latest \
+            -- curl -sf http://sessionservice/actuator/health
+
+  deploy-production:
+    name: Deploy to Production
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://sessionservice.codequest.knust.edu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.29.0'
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.14.0'
+
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG_PROD }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+
+      - name: Deploy to Production
+        run: |
+          helm upgrade --install ${{ env.HELM_RELEASE }} ${{ env.HELM_CHART }} \
+            --namespace ${{ env.KUBE_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set image.pullPolicy=IfNotPresent \
+            --set spring.profiles.active=production \
+            --set replicaCount=3 \
+            --wait \
+            --timeout 10m
+
+      - name: Verify Deployment
+        run: |
+          kubectl rollout status deployment/${{ env.HELM_RELEASE }} \
+            -n ${{ env.KUBE_NAMESPACE }} \
+            --timeout=10m
+
+      - name: Run Smoke Tests
+        run: |
+          kubectl run smoke-test --rm -i --restart=Never \
+            -n ${{ env.KUBE_NAMESPACE }} \
+            --image=curlimages/curl:latest \
+            -- curl -sf http://sessionservice/actuator/health
+
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "Session Service deployed to production",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Session Service Production Deploy*\nVersion: `${{ github.sha }}`\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

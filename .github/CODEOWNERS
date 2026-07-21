@@ -1,0 +1,14 @@
+# Global fallback
+* @codequest/backend-team
+
+# Session service specific
+/sessionservice/ @codequest/backend-team @codequest/qa-team
+/sessionservice/src/main/ @codequest/backend-team
+/sessionservice/src/test/ @codequest/backend-team @codequest/qa-team
+
+# CI/CD workflows
+/.github/workflows/sessionservice* @codequest/devops-team @codequest/backend-team
+
+# Configuration files
+/sessionservice/pom.xml @codequest/backend-team @codequest/devops-team
+/sessionservice/src/main/resources/application*.yml @codequest/backend-team @codequest/devops-team

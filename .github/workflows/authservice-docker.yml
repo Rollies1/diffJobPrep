@@ -1,0 +1,16 @@
+name: AuthService Docker Build
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'authservice/**'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build Docker image
+      working-directory: ./authservice/authservice
+      run: docker build -t authservice:${{ github.sha }} .
