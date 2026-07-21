@@ -1,0 +1,40 @@
+name: Question Service CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'questionservice/**'
+      - '.github/workflows/questionservice-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'questionservice/**'
+      - '.github/workflows/questionservice-ci.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MAVEN_OPTS: >-
+    -Dorg.slf4j.simpleLogger.showDateTime=true
+    -Dorg.slf4j.simpleLogger.dateTimeFormat=HH:mm:ss,SSS
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: ./.github/actions/setup-java-maven-questionservice
+
+      - name: Build and Test
+        run: mvn -B verify --file questionservice/questionservice/pom.xml
+      
+      - name: Publish Test Results
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure()
+        with:
+          report_paths: '**/surefire-reports/TEST-*.xml,**/failsafe-reports/TEST-*.xml'

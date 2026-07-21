@@ -1,0 +1,11 @@
+
+> jobprep-frontend@1.0.0 start
+> expo start --clear
+
+Starting project at C:\Users\duahf\OneDrive\Documents\GitHub\JobPrep_Group80\frontend
+env: load .env
+env: export EXPO_PUBLIC_POSTHOG_KEY EXPO_PUBLIC_RC_KEY_IOS EXPO_PUBLIC_RC_KEY_ANDROID EXPO_PUBLIC_API_URL EXPO_PUBLIC_APP_VERSION
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8081
+Logs for your project will appear below.

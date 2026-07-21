@@ -1,0 +1,35 @@
+# Maestro E2E: Dashboard → Library → Deck detail
+# Run: maestro test .maestro/03-dashboard-library.yaml
+# Prerequisite: logged in (run 01-login first, or use a logged-in state)
+appId: com.knust.jobprep
+---
+- launchApp
+
+# Dashboard should be visible
+- assertVisible: "Good morning"
+- assertVisible: "Weekly activity"
+- assertVisible: "Recent sessions"
+
+# Tap the Library tab
+- tapOn: "Library"
+
+# Library screen
+- assertVisible: "Search decks"
+- assertVisible: "Recommended for you"
+- assertVisible: "All decks"
+
+# Tap the first deck card
+- tapOn:
+    text: "Two Pointers"
+    optional: true
+
+# Should navigate to deck detail
+- assertVisible:
+    text: "Questions"
+    optional: true
+
+# Go back
+- tapOn: "‹"
+
+# Back on library
+- assertVisible: "All decks"

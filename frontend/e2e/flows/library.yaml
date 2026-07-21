@@ -1,0 +1,34 @@
+appId: com.jobprep.frontend
+name: Question Bank Flow
+tags:
+  - questions
+  - library
+
+---
+- runFlow: auth.yaml
+
+# Navigate to Library tab (using text label, since Feather icons aren't text)
+- tapOn: "Library"
+
+# Should show questions
+- assertVisible: "Library"
+- assertVisible: "Search thousands of questions..."
+- assertVisible: "All"
+
+# Apply filter
+- tapOn: "MCQ"
+- waitForAnimationToEnd
+
+# Scroll down
+- scrollUntilVisible:
+    element: "No questions found"
+    direction: DOWN
+
+# Or tap first question card if exists (Assuming MCQs are present)
+# In NativeWind we might just tap the center to hit a card
+- tapOn:
+    point: "50%, 50%"
+- waitForAnimationToEnd
+
+# Go back
+- tapOn: "Library" # back button from navigation header

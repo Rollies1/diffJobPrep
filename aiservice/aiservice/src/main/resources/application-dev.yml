@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jobprep_db
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+server:
+  port: 8084
+
+jwt:
+  secret: a-very-long-dummy-secret-key-for-testing-purposes-only-12345
+
+ai:
+  service:
+    allowed-origins: practiceservice,notificationservice
+    shared-secret: change-me-in-production
+  cost:
+    input-rate-per-1m: 2.50
+    output-rate-per-1m: 10.00
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  metrics:
+    tags:
+      application: aiservice
+    export:
+      prometheus:
+        enabled: true

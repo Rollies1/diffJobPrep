@@ -1,0 +1,15 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true
+  mail:
+    host: localhost
+    port: 3025
+    username: test
+    password: test
+
+jwt:
+  secret: dummy-secret-key-that-is-at-least-256-bits-long-for-tests
+  expiration: 3600000

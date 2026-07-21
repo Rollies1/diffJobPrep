@@ -1,0 +1,29 @@
+appId: com.jobprep.frontend
+name: Offline Resilience
+tags:
+  - network
+  - offline
+
+---
+- runFlow: auth.yaml
+
+# Go to Library
+- tapOn: "Library"
+
+# Turn off wifi/data via Maestro evalScript hook
+- evalScript: ${maestro.device.network.toggle(false)}
+
+# Wait for Animated Spring to drop the banner
+- waitForAnimationToEnd
+
+# Should show offline banner we wired up
+- assertVisible: "No Internet Connection"
+
+# Turn wifi back on
+- evalScript: ${maestro.device.network.toggle(true)}
+
+# Wait for Animated Spring to retract the banner
+- waitForAnimationToEnd
+
+# Banner should disappear
+- assertNotVisible: "No Internet Connection"

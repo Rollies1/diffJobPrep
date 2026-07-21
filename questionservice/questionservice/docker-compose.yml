@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: jobprep
+      POSTGRES_USER: jobprep
+      POSTGRES_PASSWORD: jobprep
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  questionservice:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/jobprep
+      SPRING_DATASOURCE_USERNAME: jobprep
+      SPRING_DATASOURCE_PASSWORD: jobprep
+      JWT_SECRET: ${JWT_SECRET:-jobprep_secret_key_knust_codequest_2026}
+      SERVER_SERVLET_CONTEXT_PATH: /api
+      SERVER_PORT: 8080
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

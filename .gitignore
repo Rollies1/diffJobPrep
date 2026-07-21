@@ -1,0 +1,29 @@
+# Logs
+*.log
+
+# Build & compiled output
+target/
+build/
+dist/
+bin/
+*.class
+*.jar
+*.war
+
+# Node & Frontend
+node_modules/
+old_node_modules/
+.expo/
+.next/
+.env.local
+
+# Generated dumps
+combined_controllers.txt
+frontend_components.txt
+
+# IDE & OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

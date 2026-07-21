@@ -1,0 +1,40 @@
+# Maestro E2E: Navigation — all tabs
+# Run: maestro test .maestro/06-navigation.yaml
+# Prerequisite: logged in
+appId: com.knust.jobprep
+---
+- launchApp
+
+# Start on Dashboard
+- assertVisible: "Good morning"
+
+# Library
+- tapOn: "Library"
+- assertVisible: "All decks"
+
+# Practice
+- tapOn: "Practice"
+- assertVisible: "Practice Mode"
+
+# Tutor
+- tapOn: "Tutor"
+- assertVisible: "JobPrep AI"
+
+# Profile
+- tapOn: "Profile"
+- assertVisible: "Sign out"
+
+# Settings from Profile
+- tapOn:
+    id: "settings-button"
+    optional: true
+- assertVisible:
+    text: "Settings"
+    optional: true
+
+# Go back
+- tapOn: "‹"
+
+# Back to Home
+- tapOn: "Home"
+- assertVisible: "Good morning"

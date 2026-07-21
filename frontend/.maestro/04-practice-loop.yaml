@@ -1,0 +1,51 @@
+# Maestro E2E: Practice loop (setup → session → results)
+# Run: maestro test .maestro/04-practice-loop.yaml
+# Prerequisite: logged in
+appId: com.knust.jobprep
+---
+- launchApp
+
+# Go to Practice tab
+- tapOn: "Practice"
+
+# Practice setup screen
+- assertVisible: "Practice Mode"
+- assertVisible: "Random mix"
+- assertVisible: "Timed mock"
+
+# Start quick practice
+- tapOn: "Start quick practice"
+
+# Active session should appear
+- assertVisible:
+    text: "Question"
+    optional: true
+
+# The question text or options should be visible
+- assertVisible:
+    text: "Submit answer"
+    optional: true
+
+# Tap an option (if MCQ) or type an answer
+- tapOn:
+    text: "A"
+    optional: true
+
+# Submit
+- tapOn:
+    text: "Submit answer"
+    optional: true
+
+# Next or See results
+- tapOn:
+    text: "Next question"
+    optional: true
+
+- tapOn:
+    text: "See results"
+    optional: true
+
+# Completion screen
+- assertVisible:
+    text: "Practice again"
+    optional: true

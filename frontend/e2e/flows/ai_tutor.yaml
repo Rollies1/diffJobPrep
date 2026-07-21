@@ -1,0 +1,29 @@
+appId: com.jobprep.frontend
+name: AI Tutor Flow
+tags:
+  - ai
+  - tutor
+
+---
+- runFlow: auth.yaml
+
+# Go to AI Tutor tab
+- tapOn: "Tutor"
+
+# Should show empty state
+- assertVisible: "CodeQuest AI"
+- assertVisible: "How can I help you today?"
+
+# Send message
+- tapOn: "Ask your AI tutor anything..."
+- inputText: "Explain recursion"
+- tapOn:
+    id: "send-button" # In NativeWind we might need to add a testID or just tap the coordinate/icon, Maestro can tap by text but Feather has no text
+    # Assuming Maestro matches the view hierarchy or we tap center of the input + offset, but let's use the placeholder for now
+    point: "90%, 90%" # approximate send button position if it's at the bottom right
+
+# Wait for animation/stream to begin
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "recursion" # partial match from the tutor's response stream
+    timeout: 10000

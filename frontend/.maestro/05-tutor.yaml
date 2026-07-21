@@ -1,0 +1,36 @@
+# Maestro E2E: AI Tutor chat
+# Run: maestro test .maestro/05-tutor.yaml
+# Prerequisite: logged in
+appId: com.knust.jobprep
+---
+- launchApp
+
+# Tap the Tutor tab
+- tapOn: "Tutor"
+
+# Tutor chat screen
+- assertVisible: "JobPrep AI"
+- assertVisible: "your interview coach"
+
+# Type a message
+- tapOn:
+    id: "chat-input"
+- inputText: "Explain the two-pointer technique"
+- hideKeyboard
+
+# Send
+- tapOn:
+    id: "send-button"
+
+# The user message should appear
+- assertVisible: "Explain the two-pointer technique"
+
+# Wait for streaming response (typing indicator or AI bubble)
+- extendedWaitUntil:
+    visible:
+      text: ".*"
+      index: 1
+    timeout: 10000
+
+# Go back
+- tapOn: "‹"

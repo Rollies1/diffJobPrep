@@ -1,0 +1,45 @@
+name: End-to-End Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  maestro-tests:
+    runs-on: macos-latest # Required for hardware acceleration for Android emulator
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "export PATH=\$PATH:\$HOME/.maestro/bin" >> $GITHUB_ENV
+
+      - name: Run Adaptive Tests on Emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          script: |
+            echo "Emulator started. Building and installing app..."
+            # Replace with your actual build command (e.g., npx expo run:android or ./gradlew installDebug)
+            # npx expo run:android
+            echo "Running Maestro tests..."
+            maestro test frontend/e2e/flows/practice/adaptive_difficulty.yaml --format junit --output report.xml
+
+      - name: Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-report
+          path: report.xml
+

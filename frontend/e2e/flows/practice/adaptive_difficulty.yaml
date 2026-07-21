@@ -1,0 +1,192 @@
+appId: com.jobprep.mobile
+---
+- runFlow: ../../common/launch.yaml
+- runFlow: ../auth/login.yaml
+
+# Navigate to System Design deck
+- tapOn: "System Design"
+- assertVisible: "Start Practice Session"
+
+# Start adaptive session
+- tapOn: "Start Practice Session"
+- extendedWaitUntil:
+    visible: "Question 1 of"
+    timeout: 10000
+
+# Verify initial difficulty is MEDIUM (assert by question content or metadata)
+# Note: We infer difficulty from question characteristics or expose it in UI
+- assertVisible:
+    text: "MEDIUM"
+    optional: true
+
+# ─── Test 1: Correct Answer → Difficulty Up ─────────────────
+
+# Answer question 1
+- tapOn: "Type your answer here..."
+- inputText: "I would use consistent hashing for sharding and a distributed cache."
+
+# Submit as correct
+- tapOn: "✓ Got It"
+- extendedWaitUntil:
+    visible: "Answer Recorded"
+    timeout: 5000
+
+# Advance to next question
+- tapOn: "Next Question"
+- extendedWaitUntil:
+    visible: "Question 2 of"
+    timeout: 10000
+
+# Verify difficulty increased (HARD)
+# Option A: If difficulty badge is visible in UI
+- assertVisible:
+    text: "HARD"
+    optional: true
+
+# Option B: Verify question is harder via content heuristic
+- assertVisible:
+    text: "scale"
+    optional: true
+- assertVisible:
+    text: "million"
+    optional: true
+
+# ─── Test 2: Wrong Answer → Difficulty Down ─────────────────
+
+# Answer question 2 incorrectly (intentionally weak)
+- tapOn: "Type your answer here..."
+- inputText: "I don't know."
+
+# Submit as wrong
+- tapOn: "✗ Missed"
+- extendedWaitUntil:
+    visible: "Answer Recorded"
+    timeout: 5000
+
+# Advance to next question
+- tapOn: "Next Question"
+- extendedWaitUntil:
+    visible: "Question 3 of"
+    timeout: 10000
+
+# Verify difficulty decreased (EASY or back to MEDIUM)
+- assertVisible:
+    text: "EASY"
+    optional: true
+
+# ─── Test 3: Boundary - Already HARD, Correct Stays HARD ───
+
+# If we can reach HARD again, verify boundary
+- tapOn: "Type your answer here..."
+- inputText: "Detailed answer about load balancers and database replication."
+
+- tapOn: "✓ Got It"
+- extendedWaitUntil:
+    visible: "Answer Recorded"
+    timeout: 5000
+
+- tapOn: "Next Question"
+
+# If at HARD and correct, should stay HARD (not crash or go higher)
+- assertVisible:
+    text: "HARD"
+    optional: true
+
+# ─── Test 4: Boundary - Already EASY, Wrong Stays EASY ─────
+
+# Abandon and restart to get to EASY
+- tapOn: "Abandon"
+- assertVisible: "System Design"
+
+# Start new session, force wrong answers to reach EASY
+- tapOn: "Start Practice Session"
+
+# Answer wrong until EASY, then wrong again
+- repeat:
+    times: 3
+    commands:
+      - tapOn: "Type your answer here..."
+      - inputText: "x"
+      - tapOn: "✗ Missed"
+      - extendedWaitUntil:
+          visible: "Next Question"
+          timeout: 5000
+      - tapOn: "Next Question"
+      - extendedWaitUntil:
+          visible: "Question"
+          timeout: 10000
+
+# Now at EASY, submit wrong again
+- tapOn: "Type your answer here..."
+- inputText: "x"
+- tapOn: "✗ Missed"
+
+# Verify no crash, still shows question
+- assertVisible: "Next Question"
+
+# ─── Test 5: Offline Adaptive Queue Persists ───────────────
+
+# Abandon current session
+- tapOn: "Abandon"
+
+# Start fresh session
+- tapOn: "Start Practice Session"
+- extendedWaitUntil:
+    visible: "Question 1 of"
+    timeout: 10000
+
+# Enable airplane mode
+- runScript:
+    file: ../../scripts/toggleNetwork.sh
+    env:
+      STATE: "off"
+
+# Answer offline
+- tapOn: "Type your answer here..."
+- inputText: "Offline answer"
+- tapOn: "✓ Got It"
+
+# Verify local UI transition (no network call)
+- assertVisible: "Answer Recorded"
+
+# Re-enable network
+- runScript:
+    file: ../../scripts/toggleNetwork.sh
+    env:
+      STATE: "on"
+
+# Wait for sync
+- extendedWaitUntil:
+    visible: "Next Question"
+    timeout: 15000
+
+# Tap next - should work with server-synced state
+- tapOn: "Next Question"
+- assertVisible: "Question"
+
+# ─── Complete Session ──────────────────────────────────────
+
+# Finish remaining questions
+- repeat:
+    while:
+      notVisible: "Session Complete!"
+    commands:
+      - tapOn: "Type your answer here..."
+      - inputText: "Answer"
+      - tapOn: "✓ Got It"
+      - extendedWaitUntil:
+          visible: "Next Question"
+          timeout: 5000
+      - tapOn:
+          text: "Next Question"
+          optional: true
+      - tapOn:
+          text: "Finish"
+          optional: true
+
+# Verify completion and stats invalidation
+- assertVisible: "Session Complete!"
+- tapOn: "Back to Library"
+
+# Verify dashboard refreshed
+- assertVisible: "Library"

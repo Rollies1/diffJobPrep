@@ -1,0 +1,4 @@
+executionOrder:
+  flowsOrder:
+    - flows/01_login.yaml
+    - flows/02_navigation.yaml

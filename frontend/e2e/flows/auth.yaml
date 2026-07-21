@@ -1,0 +1,28 @@
+appId: com.jobprep.frontend
+name: Authentication Flow
+tags:
+  - auth
+  - critical
+
+---
+- launchApp:
+    clearState: true
+
+# We should be on the login screen, but wait for pulsing loader to finish
+- extendedWaitUntil:
+    visible: "Sign in to continue"
+    timeout: 10000
+
+# Enter credentials
+- tapOn: "Email"
+- inputText: "student@knust.edu.gh"
+- tapOn: "Password"
+- inputText: "CodeQuest2026!"
+
+# Submit
+- tapOn: "Sign In"
+
+# Should redirect to dashboard
+- extendedWaitUntil:
+    visible: "Dashboard"
+    timeout: 10000

@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: notificationservice
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/jobprep}
+    username: ${DATABASE_USER:jobprep}
+    password: ${DATABASE_PASSWORD:devpassword}
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        default_schema: notification
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    default-schema: notification
+    schemas: notification
+    create-schemas: true
+
+# ─── Expo Push config ───
+expo:
+  push-url: https://exp.host/--/api/v2/push/send
+  receipt-url: https://exp.host/--/api/v2/push/getReceipts
+  # Set EXPO_ACCESS_TOKEN for production (higher quotas, receipt fetching).
+  # Anonymous pushes work in dev but are rate-limited.
+  access-token: ${EXPO_ACCESS_TOKEN:}
+  # Expo caps at 100 recipients per request.
+  batch-size: 100
+
+server:
+  port: 8083
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.jobprep.notification: ${LOG_LEVEL:INFO}
+

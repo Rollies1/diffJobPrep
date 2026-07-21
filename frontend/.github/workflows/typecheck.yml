@@ -1,0 +1,41 @@
+name: Type Check
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start backend (for OpenAPI generation)
+        run: |
+          # Assuming your backend can be started for docs
+          # docker-compose up -d gateway
+          # sleep 10
+
+      - name: Generate types
+        run: npm run types:generate
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Verify no manual 'any' types
+        run: |
+          if grep -r "as any" src/ --include="*.ts" --include="*.tsx"; then
+            echo "Found forbidden 'as any' usage"
+            exit 1
+          fi

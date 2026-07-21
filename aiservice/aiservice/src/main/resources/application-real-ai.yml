@@ -1,0 +1,21 @@
+# Spring AI Configuration for aiservice
+# Activate with: spring.profiles.active=real-ai
+
+spring:
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o
+          temperature: 0.2
+
+# Cost tracking rates (USD per 1M tokens)
+ai:
+  cost:
+    input-rate-per-1m: 2.50
+    output-rate-per-1m: 10.00
+
+logging:
+  level:
+    com.knust.codequest.aiservice.service.SpringAiProvider: DEBUG

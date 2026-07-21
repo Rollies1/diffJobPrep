@@ -1,0 +1,32 @@
+name: Question Service SonarQube
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'questionservice/**'
+      - '.github/workflows/questionservice-sonar.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'questionservice/**'
+      - '.github/workflows/questionservice-sonar.yml'
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Java
+        uses: ./.github/actions/setup-java-maven-questionservice
+
+      - name: Build and Analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd questionservice/questionservice
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=JobPrep_Group80_questionservice

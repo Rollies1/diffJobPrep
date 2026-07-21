@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: authservice
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/jobprep}
+    username: ${DATABASE_USER:jobprep}
+    password: ${DATABASE_PASSWORD:devpassword}
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        default_schema: auth
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    default-schema: auth
+    schemas: auth
+    create-schemas: true
+
+# ─── RevenueCat configuration ───
+revenuecat:
+  # ─── Webhook auth ───
+  # Per review: RC does NOT sign webhooks. You set this token in the RC
+  # dashboard under Project Settings → Webhooks → Authorization header.
+  # The webhook endpoint checks `Authorization: Bearer <webhook-auth-token>`.
+  webhook-auth-token: ${RC_WEBHOOK_AUTH_TOKEN:dev-webhook-secret}
+
+  # ─── REST API (server-side, secret) ───
+  # Used to fetch authoritative customer info after a webhook.
+  # Find in RC dashboard → Project Settings → API Keys → Secret API key.
+  # Format: "sk_xxxxxxxxxxxxxxxxxxxxxxxx"
+  rest-api-key: ${RC_REST_API_KEY:}
+
+  # ─── Public SDK keys (passed to the frontend, NOT secret) ───
+  # Platform-specific. Find in RC dashboard → Project Settings → API Keys.
+  ios-sdk-key: ${RC_IOS_SDK_KEY:appl_xxxxxxxxxxxxxxxxxxxxxxxx}
+  android-sdk-key: ${RC_ANDROID_SDK_KEY:goog_xxxxxxxxxxxxxxxxxxxxxxxx}
+
+  # ─── Entitlement ID ───
+  # The entitlement that grants premium access. Must match your RC dashboard.
+  entitlement-id: ${RC_ENTITLEMENT_ID:premium}
+
+  # ─── REST API base URL ───
+  api-base-url: https://api.revenuecat.com/v1
+
+# ─── Webhook rate limiting (per review) ───
+# Protects against webhook floods even with valid auth.
+webhook:
+  rate-limit:
+    max-requests-per-minute: 200
+
+# ─── Internal service URLs ───
+# authservice calls sessionservice to log analytics events.
+services:
+  session:
+    base-url: ${SESSION_SERVICE_URL:http://localhost:8084}
+    internal-api-key: ${INTERNAL_API_KEY:dev-internal-key}
+
+server:
+  port: 8085
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.jobprep.auth: ${LOG_LEVEL:INFO}
+

@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: practiceservice
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/jobprep}
+    username: ${DATABASE_USER:jobprep}
+    password: ${DATABASE_PASSWORD:devpassword}
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        default_schema: practice
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    default-schema: practice
+    schemas: practice
+    create-schemas: true
+
+# ─── Idempotency config ───
+idempotency:
+  # Keys expire after this many hours. Pruned by a scheduled task or
+  # by the cron endpoint in sessionservice.
+  ttl-hours: 24
+  # Max key length (client-supplied UUID recommended).
+  max-key-length: 128
+
+server:
+  port: 8086
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.jobprep.practice: ${LOG_LEVEL:INFO}
+

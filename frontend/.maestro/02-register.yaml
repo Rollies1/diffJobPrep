@@ -1,0 +1,56 @@
+# Maestro E2E: Register flow
+# Run: maestro test .maestro/02-register.yaml
+appId: com.knust.jobprep
+---
+- launchApp:
+    clearState: true
+
+# Go to register from login
+- assertVisible: "Create one"
+- tapOn: "Create one"
+
+# Should be on the register screen
+- assertVisible: "Create your account"
+- assertVisible: "Full name"
+- assertVisible: "Email address"
+- assertVisible: "Password"
+- assertVisible: "Confirm password"
+
+# Fill the form
+- tapOn:
+    id: "name-input"
+- inputText: "Test User"
+
+- tapOn:
+    id: "email-input"
+- inputText: "testuser@example.com"
+
+- tapOn:
+    id: "password-input"
+- inputText: "TestPass123!"
+
+# Password strength meter should appear
+- assertVisible: "8+ characters"
+
+- tapOn:
+    id: "confirm-input"
+- inputText: "TestPass123!"
+
+# Should show "Passwords match"
+- assertVisible: "Passwords match"
+
+# Select a role
+- tapOn: "Frontend Dev"
+
+# Accept terms (already checked by default, but tap to confirm)
+- tapOn:
+    id: "terms-checkbox"
+
+# Submit
+- hideKeyboard
+- tapOn: "Create account"
+
+# Should navigate to onboarding or dashboard
+- assertVisible:
+    text: "Get started"
+    optional: true

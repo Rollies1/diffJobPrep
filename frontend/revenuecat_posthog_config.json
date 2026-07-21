@@ -1,0 +1,142 @@
+{
+  "project_name": "JobPrep",
+  "apps": [
+    {
+      "platform": "ios",
+      "bundle_id": "com.jobprep.app",
+      "api_key": "appl_YOUR_IOS_KEY"
+    },
+    {
+      "platform": "android",
+      "package_name": "com.jobprep.app",
+      "api_key": "goog_YOUR_ANDROID_KEY"
+    }
+  ],
+  "entitlements": {
+    "pro": {
+      "identifier": "pro",
+      "description": "Full access to all premium decks, unlimited practice, and AI feedback"
+    }
+  },
+  "offerings": {
+    "default": {
+      "identifier": "default",
+      "description": "Production paywall",
+      "packages": [
+        {
+          "identifier": "$rc_monthly",
+          "platform_product_identifier": "jobprep_pro_monthly"
+        },
+        {
+          "identifier": "$rc_annual",
+          "platform_product_identifier": "jobprep_pro_yearly"
+        }
+      ]
+    },
+    "experiment_urgency": {
+      "identifier": "experiment_urgency",
+      "description": "Urgency-variant paywall with different pricing presentation",
+      "packages": [
+        {
+          "identifier": "$rc_monthly",
+          "platform_product_identifier": "jobprep_pro_monthly"
+        },
+        {
+          "identifier": "$rc_annual",
+          "platform_product_identifier": "jobprep_pro_yearly"
+        }
+      ]
+    }
+  },
+  "products": {
+    "ios": [
+      {
+        "identifier": "jobprep_pro_monthly",
+        "type": "subscription",
+        "store": "app_store",
+        "subscription": {
+          "duration": "P1M",
+          "introductory_price": {
+            "price": 0.00,
+            "duration": "P1W",
+            "payment_mode": "free_trial"
+          }
+        },
+        "price": 9.99,
+        "currency": "USD",
+        "title": "JobPrep Pro Monthly",
+        "description": "Unlimited mock interviews, FAANG banks, AI feedback"
+      },
+      {
+        "identifier": "jobprep_pro_yearly",
+        "type": "subscription",
+        "store": "app_store",
+        "subscription": {
+          "duration": "P1Y",
+          "introductory_price": {
+            "price": 0.00,
+            "duration": "P1W",
+            "payment_mode": "free_trial"
+          }
+        },
+        "price": 79.99,
+        "currency": "USD",
+        "title": "JobPrep Pro Yearly",
+        "description": "Save 33% with annual billing"
+      }
+    ],
+    "android": [
+      {
+        "identifier": "jobprep_pro_monthly",
+        "type": "subscription",
+        "store": "play_store",
+        "subscription": {
+          "duration": "P1M",
+          "base_plan_id": "monthly-base-plan",
+          "offer_id": "free-trial-7days"
+        },
+        "price": 9.99,
+        "currency": "USD",
+        "title": "JobPrep Pro Monthly",
+        "description": "Unlimited mock interviews, FAANG banks, AI feedback"
+      },
+      {
+        "identifier": "jobprep_pro_yearly",
+        "type": "subscription",
+        "store": "play_store",
+        "subscription": {
+          "duration": "P1Y",
+          "base_plan_id": "yearly-base-plan",
+          "offer_id": "free-trial-7days"
+        },
+        "price": 79.99,
+        "currency": "USD",
+        "title": "JobPrep Pro Yearly",
+        "description": "Save 33% with annual billing"
+      }
+    ]
+  },
+  "webhooks": [
+    {
+      "url": "https://your-api.com/webhooks/revenuecat",
+      "events": [
+        "INITIAL_PURCHASE",
+        "RENEWAL",
+        "CANCELLATION",
+        "UNCANCELLATION",
+        "SUBSCRIPTION_PAUSED",
+        "EXPIRATION",
+        "BILLING_ISSUE",
+        "PRODUCT_CHANGE",
+        "TRANSFER"
+      ]
+    }
+  ],
+  "integrations": {
+    "posthog": {
+      "enabled": true,
+      "api_key": "phc_YOUR_POSTHOG_KEY",
+      "host": "https://app.posthog.com"
+    }
+  }
+}

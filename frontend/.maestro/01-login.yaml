@@ -1,0 +1,32 @@
+# Maestro E2E: Login flow
+# Run: maestro test .maestro/01-login.yaml
+appId: com.knust.jobprep
+---
+- launchApp:
+    clearState: true
+
+# Should land on the login screen
+- assertVisible: "JobPrep"
+- assertVisible: "Welcome back"
+- assertVisible: "Email address"
+- assertVisible: "Password"
+
+# Enter credentials
+- tapOn:
+    id: "email-input"
+- inputText: "ama.okafor@mail.com"
+
+- tapOn:
+    id: "password-input"
+- inputText: "password123"
+
+# Dismiss keyboard
+- hideKeyboard
+
+# Tap sign in
+- tapOn: "Sign in"
+
+# Should navigate to the dashboard
+- assertVisible: "Good morning"
+- assertVisible: "Weekly activity"
+- assertVisible: "Skill breakdown"

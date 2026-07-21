@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "JobPrep",
+    "slug": "jobprep",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "jobprep",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#fbfcfe"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.knust.jobprep",
+      "associatedDomains": [
+        "applinks:jobprep.app"
+      ]
+    },
+    "android": {
+      "package": "com.knust.jobprep",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            { "scheme": "jobprep" },
+            { "scheme": "https", "host": "jobprep.app" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-notifications",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#2e8bee"
+        }
+      ]
+    ],
+    "extra": {}
+  }
+}

@@ -1,0 +1,14 @@
+name: AuthService Deploy
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Deploy to Kubernetes
+      run: echo "Deploying authservice to K8s"

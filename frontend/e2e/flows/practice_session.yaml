@@ -1,0 +1,39 @@
+appId: com.jobprep.frontend
+name: Practice Session Flow
+tags:
+  - practice
+  - critical
+
+---
+- runFlow: auth.yaml
+
+# Go to Practice tab
+- tapOn: "Practice"
+
+# Configure session
+- assertVisible: "Practice"
+- assertVisible: "Configure your session"
+
+# Select difficulty
+- tapOn: "Medium"
+
+# Start session
+- tapOn: "Start Practice"
+
+# Wait for session payload
+- extendedWaitUntil:
+    visible: "Q1 of"
+    timeout: 8000
+
+# Submit without answering to trigger toast or proceed
+- tapOn: "Next"
+- waitForAnimationToEnd
+
+# Complete session
+- extendedWaitUntil:
+    visible: "Session Complete"
+    timeout: 15000
+- tapOn: "View Results"
+
+# Back to dashboard
+- assertVisible: "Dashboard"

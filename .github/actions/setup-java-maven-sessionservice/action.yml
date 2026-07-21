@@ -1,0 +1,62 @@
+name: 'Setup Java & Maven'
+description: 'Reusable action to setup Java, Maven, and Docker for sessionservice'
+
+inputs:
+  java-version:
+    description: 'Java version to use'
+    required: false
+    default: '21'
+  java-distribution:
+    description: 'Java distribution to use'
+    required: false
+    default: 'temurin'
+  working-directory:
+    description: 'Working directory'
+    required: false
+    default: './sessionservice'
+  setup-docker:
+    description: 'Whether to setup Docker'
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ inputs.java-version }}
+        distribution: ${{ inputs.java-distribution }}
+        cache: 'maven'
+
+    - name: Setup Docker
+      if: ${{ inputs.setup-docker == 'true' }}
+      uses: docker/setup-buildx-action@v3
+
+    - name: Verify Maven Wrapper
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        if [ ! -f ./mvnw ]; then
+          echo "Maven wrapper not found, installing..."
+          mvn -N wrapper:wrapper
+        fi
+        chmod +x ./mvnw
+        ./mvnw -version
+
+    - name: Cache Maven Dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles(format('{0}/pom.xml', inputs.working-directory)) }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Cache Testcontainers Images
+      if: ${{ inputs.setup-docker == 'true' }}
+      uses: actions/cache@v4
+      with:
+        path: ~/.testcontainers.properties
+        key: ${{ runner.os }}-testcontainers
+        restore-keys: |
+          ${{ runner.os }}-testcontainers

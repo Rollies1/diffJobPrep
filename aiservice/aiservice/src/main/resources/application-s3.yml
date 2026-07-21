@@ -1,0 +1,12 @@
+ai:
+  reports:
+    storage-path: ./reports  # Fallback for local profile
+    s3:
+      bucket: ${REPORTS_S3_BUCKET:codequest-reports}
+      access-key: ${AWS_ACCESS_KEY_ID:}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:}
+      region: ${AWS_REGION:us-east-1}
+      # For MinIO, set endpoint (e.g., http://localhost:9000)
+      endpoint: ${S3_ENDPOINT:}
+      # Public CDN URL prefix for direct mobile downloads
+      public-url-prefix: ${REPORTS_CDN_URL:}
