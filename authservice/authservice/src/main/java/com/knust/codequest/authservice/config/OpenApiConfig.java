@@ -13,8 +13,8 @@ import java.util.List;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${server.servlet.context-path:}")
-    private String contextPath;
+    @Value("${app.base-url:http://localhost:8089}")
+    private String appBaseUrl;
 
     @Bean
     public OpenAPI customOpenAPI() {
@@ -25,7 +25,7 @@ public class OpenApiConfig {
                         .description("Authentication & Authorization service")
                         .contact(new Contact().name("CodeQuest Team").email("team@knust.edu.gh")))
                 .servers(List.of(
-                        new Server().url("http://localhost:8081" + contextPath).description("Local development")
+                        new Server().url(appBaseUrl + "/api/auth").description("Via gateway")
                 ));
     }
 }

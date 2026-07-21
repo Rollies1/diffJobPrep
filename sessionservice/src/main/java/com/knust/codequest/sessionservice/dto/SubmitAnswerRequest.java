@@ -7,4 +7,8 @@ import java.util.UUID;
 public class SubmitAnswerRequest {
     private UUID questionId;
     private String userResponse;
+
+    public String getAnswer() {
+        return userResponse;
+    }
 }

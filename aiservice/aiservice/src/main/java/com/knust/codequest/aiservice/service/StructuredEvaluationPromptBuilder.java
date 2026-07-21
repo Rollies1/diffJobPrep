@@ -31,7 +31,7 @@ public class StructuredEvaluationPromptBuilder implements EvaluationPromptBuilde
 
     @Override
     public Prompt build(List<AnswerDTO> answers) {
-        String jsonSchema = outputConverter.getJsonSchema();
+        String jsonSchema = outputConverter.getFormat();
 
         SystemPromptTemplate systemTemplate = new SystemPromptTemplate(systemPromptResource);
         var systemMessage = systemTemplate.createMessage(Map.of("schema", jsonSchema));
@@ -50,7 +50,7 @@ public class StructuredEvaluationPromptBuilder implements EvaluationPromptBuilde
 
         var userMessage = new org.springframework.ai.chat.messages.UserMessage(userText.toString());
 
-        return new Prompt(systemMessage, userMessage);
+        return new Prompt(List.of(systemMessage, userMessage));
     }
 
     @Override

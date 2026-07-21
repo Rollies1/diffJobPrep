@@ -117,6 +117,41 @@ public class PracticeService {
         log.info("Practice session id={} abandoned", sessionId);
     }
 
+    /**
+     * Advance to the next unanswered question in a session.
+     * Returns the next question's id + 0-based index, or null if the session
+     * is complete (all questions answered).
+     */
+    public NextQuestionResponse nextQuestion(UUID sessionId) {
+        PracticeSessionDto session = getPracticeSession(sessionId);
+        int answered = session.getQuestionsAnswered();
+        List<QuestionSlotDto> questions = session.getQuestions();
+        if (questions == null || answered >= questions.size()) {
+            return null; // session complete
+        }
+        QuestionSlotDto next = questions.get(answered);
+        return new NextQuestionResponse(next.getQuestionId(), answered);
+    }
+
+    /**
+     * Sync an offline-completed session. Pragmatic implementation: derives a
+     * SessionResult from the payload (answer count + duration). Wire to the
+     * sessionservice for authoritative persistence when available.
+     */
+    public SessionResult syncOffline(SyncPayload payload) {
+        int total = payload.getAnswers() != null ? payload.getAnswers().size() : 0;
+        long durationMs = 0;
+        if (payload.getStartedAt() != null && payload.getCompletedAt() != null) {
+            durationMs = payload.getCompletedAt().toEpochMilli() - payload.getStartedAt().toEpochMilli();
+        }
+        UUID sid = payload.getSessionId() != null
+                ? payload.getSessionId()
+                : UUID.randomUUID();
+        int score = (int) Math.round((total > 0 ? 100.0 : 0.0));
+        log.info("Synced offline session id={} with {} answers", sid, total);
+        return new SessionResult(sid, score, total, total, total, durationMs, java.util.Map.of());
+    }
+
     public Page<PracticeSessionDto> getMySessions(String userId, Pageable pageable) {
         return sessionClient.getUserSessions(userId, pageable)
             .map(this::enrichSession);

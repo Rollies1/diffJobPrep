@@ -46,7 +46,7 @@ public class SpringAiProvider implements AiProvider {
 
         // Force JSON mode for structured output (OpenAI-specific; ignored by other providers)
         OpenAiChatOptions jsonOptions = OpenAiChatOptions.builder()
-            .withTemperature(0.2)
+            .withTemperature(0.2f)
             .build();
 
         log.info("Sending evaluation request to LLM with promptVersion={}", promptBuilder.getVersion());

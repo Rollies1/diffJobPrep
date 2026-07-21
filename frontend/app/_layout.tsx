@@ -1,14 +1,16 @@
 import React, { useEffect, useCallback } from 'react'
-import { Stack, router } from 'expo-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ActivityIndicator, View } from 'react-native'
 import { useFonts, Inter_400Regular, Inter_600SemiBold, Inter_700Bold } from '@expo-google-fonts/inter'
 import { useAuthStore } from '../src/store/useAuthStore'
 import { NetworkStatus } from '../src/components/NetworkStatus'
+import { OfflineDetector } from '../src/components/OfflineDetector'
 import { SyncProvider } from '../src/components/SyncProvider'
+import { LoadingScreen } from '../src/components/LoadingScreen'
+import { ErrorBoundary } from '../src/components/ErrorBoundary'
+import { ThemeProvider } from '../src/theme/ThemeProvider'
 import { usePushNotifications, type NotificationTapData } from '../src/hooks/usePushNotifications'
 import { useDeepLinks } from '../src/hooks/useDeepLinks'
-import { colors } from '../src/theme'
+import { Stack, router, useRootNavigationState } from 'expo-router'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,6 +19,7 @@ const queryClient = new QueryClient({
 })
 
 export default function RootLayout() {
+  const rootNavigationState = useRootNavigationState()
   const hydrate = useAuthStore((s) => s.hydrate)
   const isHydrated = useAuthStore((s) => s.isHydrated)
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
@@ -33,13 +36,13 @@ export default function RootLayout() {
 
   // Auth guard: once hydration is done, redirect to the right group.
   useEffect(() => {
-    if (!isHydrated) return
+    if (!isHydrated || !rootNavigationState?.key) return
     if (isAuthenticated) {
       router.replace('/(app)/dashboard')
     } else {
       router.replace('/(auth)/login')
     }
-  }, [isHydrated, isAuthenticated])
+  }, [isHydrated, isAuthenticated, rootNavigationState?.key])
 
   // Push notification tap → route to the relevant screen.
   const handleNotificationTap = useCallback((data: NotificationTapData) => {
@@ -70,19 +73,20 @@ export default function RootLayout() {
   useDeepLinks(isAuthenticated)
 
   if (!isHydrated || (!fontsLoaded && !fontError)) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg }}>
-        <ActivityIndicator size="large" color={colors.blue} />
-      </View>
-    )
+    return <LoadingScreen label="Loading JobPrep…" />
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <SyncProvider queryClient={queryClient}>
-        <NetworkStatus />
-        <Stack screenOptions={{ headerShown: false }} />
-      </SyncProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <SyncProvider queryClient={queryClient}>
+            <NetworkStatus />
+            <OfflineDetector />
+            <Stack screenOptions={{ headerShown: false }} />
+          </SyncProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   )
 }

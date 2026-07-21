@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient'
 import { Mail, Lock, Eye, EyeOff, ChevronRight, Fingerprint } from 'lucide-react-native'
 import { JLogo } from '../components/JLogo'
+import { GoogleIcon } from '../components/GoogleIcon'
 import { useLogin } from '../hooks/queries'
 import { colors, gradients, shadows } from '../theme'
 
@@ -107,6 +108,7 @@ export default function LoginScreen({ onLoginSuccess, onRegister }: { onLoginSuc
         {/* Social buttons */}
         <View style={styles.socialRow}>
           <Pressable style={styles.socialBtn}>
+            <GoogleIcon size={16} />
             <Text style={styles.socialText}>Google</Text>
           </Pressable>
           <Pressable style={[styles.socialBtn, { backgroundColor: colors.blue }]}>

@@ -1,6 +1,7 @@
 package com.knust.codequest.practiceservice.client;
 
 import com.knust.codequest.practiceservice.dto.QuestionSlotDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -11,9 +12,13 @@ import java.util.UUID;
 public class QuestionServiceClient {
 
     private final WebClient webClient;
+    private final String serviceSecret;
 
-    public QuestionServiceClient(WebClient.Builder builder) {
-        this.webClient = builder.baseUrl("http://questionservice:8080").build();
+    public QuestionServiceClient(WebClient.Builder builder,
+                                 @Value("${services.question.base-url}") String questionBaseUrl,
+                                 @Value("${services.shared-secret}") String serviceSecret) {
+        this.webClient = builder.baseUrl(questionBaseUrl).build();
+        this.serviceSecret = serviceSecret;
     }
 
     public List<QuestionSlotDto> getRandomQuestions(UUID categoryId, String difficulty, int count) {
@@ -25,7 +30,7 @@ public class QuestionServiceClient {
                 .queryParam("count", count)
                 .build())
             .header("X-Service-Origin", "practiceservice")
-            .header("X-Service-Secret", "${SERVICE_SHARED_SECRET}")
+            .header("X-Service-Secret", serviceSecret)
             .retrieve()
             .bodyToFlux(QuestionSlotDto.class)
             .collectList()
@@ -36,7 +41,7 @@ public class QuestionServiceClient {
         return webClient.get()
             .uri("/api/questions/{id}", questionId)
             .header("X-Service-Origin", "practiceservice")
-            .header("X-Service-Secret", "${SERVICE_SHARED_SECRET}")
+            .header("X-Service-Secret", serviceSecret)
             .retrieve()
             .bodyToMono(QuestionSlotDto.class)
             .block();

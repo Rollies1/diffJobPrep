@@ -9,9 +9,13 @@ export interface UserDto {
   id: string
   email: string
   name: string
+  username: string | null
+  bio: string | null
   role: string
   avatarUrl: string | null
   onboardingComplete: boolean
+  isPremium: boolean
+  premiumExpiry: string | null
 }
 
 export interface AuthResponse {
@@ -24,12 +28,26 @@ export interface RegisterRequest {
   name: string
   email: string
   password: string
+  username?: string
   role?: string
 }
 
 export interface LoginRequest {
   email: string
   password: string
+}
+
+export interface ProfileUpdateRequest {
+  username?: string
+  name?: string
+  bio?: string
+  avatarUrl?: string
+  onboardingComplete?: boolean
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string
+  newPassword: string
 }
 
 /* ── Questions & Decks ───────────────────────────────────────── */

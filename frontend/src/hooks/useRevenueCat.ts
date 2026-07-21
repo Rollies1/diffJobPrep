@@ -54,11 +54,16 @@ export function useRevenueCat(userId: string | null) {
     if (configuredRef.current) return;
     configuredRef.current = true;
 
+    const apiKey = getRevenueCatApiKey();
+    if (!apiKey || apiKey.includes('xxxxxxxx')) {
+      console.log('[RC] Skipping RevenueCat initialization (mock key detected)');
+      setState(prev => ({ ...prev, isReady: true }));
+      return;
+    }
+
     Purchases.setLogLevel(LOG_LEVEL.DEBUG);
     Purchases.configure({
-      apiKey: getRevenueCatApiKey(),
-      // Runs the SDK in observer mode if you're using RC purely for analytics
-      // and managing purchases natively. Leave false for the standard flow.
+      apiKey,
       observerMode: false,
     });
 

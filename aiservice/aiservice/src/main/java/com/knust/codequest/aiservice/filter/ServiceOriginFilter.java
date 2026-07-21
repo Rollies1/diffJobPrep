@@ -14,12 +14,20 @@ import java.io.IOException;
 import java.util.Set;
 
 /**
- * Validates inter-service requests via X-Service-Origin header.
+ * Validates inter-service requests on INTERNAL paths only.
  * <p>
- * Prevents unauthorized services (or leaked user tokens) from triggering
- * expensive LLM calls. Complements JWT user authentication.
+ * Architecture: the gateway validates the user's JWT and forwards to
+ * aiservice with an X-User-Id header (Authorization stripped). User-facing
+ * routes (/api/ai/evaluate, /api/ai/chat, etc.) therefore arrive WITHOUT
+ * service headers — they're trusted because the gateway already
+ * authenticated them.
  * <p>
- * Skips validation for actuator and public health endpoints.
+ * This filter enforces the X-Service-Origin + X-Service-Secret headers ONLY
+ * on internal paths (called directly by other services, bypassing the
+ * gateway), preventing unauthorized services from triggering expensive LLM
+ * calls.
+ * <p>
+ * Skips validation for actuator/health endpoints.
  */
 @Component
 @Order(1)
@@ -44,31 +52,41 @@ public class ServiceOriginFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String origin = request.getHeader(ORIGIN_HEADER);
-        String secret = request.getHeader(ORIGIN_SECRET);
-
-        // Skip for actuator and public endpoints
         String path = request.getRequestURI();
+
+        // Skip for actuator + health endpoints.
         if (path.startsWith("/actuator") || path.startsWith("/health")) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        // Only enforce the service secret on INTERNAL paths (service-to-service,
+        // bypassing the gateway). User-facing paths are authenticated by the
+        // gateway's JWT filter and forwarded with X-User-Id.
+        if (!path.startsWith("/internal")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Internal path — require valid service origin + secret.
+        String origin = request.getHeader(ORIGIN_HEADER);
+        String secret = request.getHeader(ORIGIN_SECRET);
+
         if (origin == null || !allowedOrigins.contains(origin)) {
-            log.warn("Rejected request: invalid or missing X-Service-Origin={}, path={}", origin, path);
+            log.warn("Rejected internal request: invalid or missing X-Service-Origin={}, path={}", origin, path);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("Invalid service origin");
             return;
         }
 
         if (secret == null || !secret.equals(sharedSecret)) {
-            log.warn("Rejected request: invalid X-Service-Secret from origin={}", origin);
+            log.warn("Rejected internal request: invalid X-Service-Secret from origin={}", origin);
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("Invalid service secret");
             return;
         }
 
-        log.debug("Allowed inter-service request from origin={}", origin);
+        log.debug("Allowed internal request from origin={}", origin);
         filterChain.doFilter(request, response);
     }
 }

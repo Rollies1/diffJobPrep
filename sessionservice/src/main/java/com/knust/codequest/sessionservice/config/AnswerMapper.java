@@ -1,7 +1,7 @@
 package com.knust.codequest.sessionservice.config;
 
 import com.knust.codequest.sessionservice.dto.AnswerDto;
-import com.knust.codequest.sessionservice.model.SessionAnswer;
+import com.knust.codequest.sessionservice.entity.SessionAnswer;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

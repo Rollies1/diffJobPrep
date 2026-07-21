@@ -8,7 +8,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -65,7 +67,31 @@ public class SessionController {
     }
 
     @GetMapping("/stats")
-    public ResponseEntity<UserStatsDto> getStats(@RequestParam String userId) {
-        return ResponseEntity.ok(sessionService.getUserStats(userId));
+    public ResponseEntity<UserStatsDto> getStats(
+            @RequestParam(required = false) String userId,
+            @AuthenticationPrincipal String principalUserId) {
+        String uid = userId != null ? userId : principalUserId;
+        return ResponseEntity.ok(sessionService.getUserStats(uid));
+    }
+
+    /** GET /sessions/history?cursor=&limit=20 — cursor-paginated history. */
+    @GetMapping("/history")
+    public ResponseEntity<CursorPage<SessionHistoryItem>> getHistory(
+            @RequestParam(required = false) String cursor,
+            @RequestParam(defaultValue = "20") int limit,
+            @RequestParam(required = false) String userId,
+            @AuthenticationPrincipal String principalUserId) {
+        String uid = userId != null ? userId : principalUserId;
+        return ResponseEntity.ok(sessionService.getHistory(uid, cursor, limit));
+    }
+
+    /** GET /sessions/activity?days=7 — daily activity for heatmap/chart. */
+    @GetMapping("/activity")
+    public ResponseEntity<List<DailyActivityDto>> getActivity(
+            @RequestParam(defaultValue = "7") int days,
+            @RequestParam(required = false) String userId,
+            @AuthenticationPrincipal String principalUserId) {
+        String uid = userId != null ? userId : principalUserId;
+        return ResponseEntity.ok(sessionService.getActivity(uid, days));
     }
 }

@@ -4,6 +4,7 @@ import type {
   RegisterRequest,
   LoginRequest,
   UserDto,
+  ProfileUpdateRequest,
 } from '../types/api'
 
 export const authService = {
@@ -29,5 +30,14 @@ export const authService = {
 
   logout: async (): Promise<void> => {
     await api.post('/auth/logout')
+  },
+
+  updateProfile: async (body: ProfileUpdateRequest): Promise<UserDto> => {
+    const { data } = await api.put<UserDto>('/auth/profile', body)
+    return data
+  },
+
+  changePassword: async (body: { currentPassword: string; newPassword: string }): Promise<void> => {
+    await api.put('/auth/password', body)
   },
 }

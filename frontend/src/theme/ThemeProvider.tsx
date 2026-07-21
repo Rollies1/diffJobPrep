@@ -1,10 +1,20 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { themes, ThemeTokens, ThemeMode } from './tokens';
+import { useAppearanceStore } from '../stores/useAppearanceStore';
 
-const THEME_STORAGE_KEY = '@jobprep/theme_preference';
-
+/**
+ * Unified theme provider.
+ *
+ * Derives the active palette from useAppearanceStore (light/dark/system),
+ * which is persisted via SecureStore and toggled from the Profile screen.
+ * Maps:  light  → daylight palette
+ *        dark   → midnight palette
+ *        system → follows the device color scheme
+ *
+ * This ensures the 32+ screens using useTheme() react to the same dark-mode
+ * toggle as the 4 screens using useThemeColors().
+ */
 type ThemeContextType = ThemeTokens & {
   _meta: {
     current: ThemeMode;
@@ -14,62 +24,60 @@ type ThemeContextType = ThemeTokens & {
   };
 };
 
-const defaultThemeContext = {
+const defaultThemeContext: ThemeContextType = {
   ...themes.midnight,
   _meta: {
     current: 'midnight' as ThemeMode,
-    userPreference: null as ThemeMode | null,
+    userPreference: null,
     setTheme: async () => {},
     ready: false,
-  }
+  },
 };
 
 const ThemeContext = createContext<ThemeContextType>(defaultThemeContext);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const systemScheme = useColorScheme();
-  const [userPreference, setUserPreference] = useState<ThemeMode | null>(null);
-  const [ready, setReady] = useState(false);
+  // appearanceMode is 'light' | 'dark' | 'system' (from useAppearanceStore)
+  const appearanceMode = useAppearanceStore((s) => s.mode);
+  const setAppearanceMode = useAppearanceStore((s) => s.setMode);
+  const [ready, setReady] = useState(true); // appearance store is sync-persisted
 
-  useEffect(() => {
-    AsyncStorage.getItem(THEME_STORAGE_KEY).then((stored) => {
-      if (stored && ['midnight', 'oled', 'daylight'].includes(stored)) {
-        setUserPreference(stored as ThemeMode);
-      }
-      setReady(true);
-    });
-  }, []);
-
-  const setTheme = async (mode: ThemeMode | 'system') => {
-    if (mode === 'system') {
-      await AsyncStorage.removeItem(THEME_STORAGE_KEY);
-      setUserPreference(null);
-    } else {
-      await AsyncStorage.setItem(THEME_STORAGE_KEY, mode);
-      setUserPreference(mode);
-    }
-  };
-
+  // Map appearance mode → token theme mode.
   const resolvedMode: ThemeMode =
-    userPreference ?? (systemScheme === 'light' ? 'daylight' : 'midnight');
+    appearanceMode === 'dark'
+      ? 'midnight'
+      : appearanceMode === 'light'
+        ? 'daylight'
+        : systemScheme === 'light'
+          ? 'daylight'
+          : 'midnight';
 
   const tokens = themes[resolvedMode];
 
-  const value = {
+  // setTheme bridges the old ThemeMode | 'system' API to useAppearanceStore.
+  const setTheme = async (mode: ThemeMode | 'system') => {
+    if (mode === 'system') {
+      setAppearanceMode('system');
+    } else if (mode === 'daylight') {
+      setAppearanceMode('light');
+    } else {
+      // midnight + oled both map to dark.
+      setAppearanceMode('dark');
+    }
+  };
+
+  const value: ThemeContextType = {
     ...tokens,
     _meta: {
       current: resolvedMode,
-      userPreference,
+      userPreference: appearanceMode === 'system' ? null : (appearanceMode === 'dark' ? 'midnight' : 'daylight'),
       setTheme,
       ready,
     },
   };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = () => useContext(ThemeContext);

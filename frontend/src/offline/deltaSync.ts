@@ -35,7 +35,7 @@ class DeltaSyncManager {
     const checkpoints = await this.getCheckpoints();
     const checkpoint = checkpoints[deckId];
     
-    const url = new URL(`${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080'}/decks/${deckId}/delta`);
+    const url = new URL(`${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8089/api'}/decks/${deckId}/delta`);
     if (checkpoint) {
       url.searchParams.set('since', checkpoint.lastSyncedAt);
       url.searchParams.set('after_id', checkpoint.lastQuestionId);

@@ -138,7 +138,7 @@ export function Avatar({
   ring?: boolean
   style?: ViewStyle
 }) {
-  const initials = name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+  const initials = name.trim().charAt(0).toUpperCase() || '?'
   if (ring) {
     return (
       <View style={[{ padding: 2, borderRadius: size, overflow: 'hidden' }, style]}>

@@ -61,11 +61,26 @@ webhook:
 # authservice calls sessionservice to log analytics events.
 services:
   session:
-    base-url: ${SESSION_SERVICE_URL:http://localhost:8084}
+    base-url: ${SESSION_SERVICE_URL:http://localhost:8087}
     internal-api-key: ${INTERNAL_API_KEY:dev-internal-key}
 
 server:
   port: 8085
+
+# Public base URL used in email links (verification + password reset).
+# Points at the gateway so links work from any device.
+app:
+  base-url: ${APP_BASE_URL:http://localhost:8089}
+
+# JWT — secret MUST match the gateway so tokens are mutually valid.
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-your-256-bit-secret-your-256-bit-secret}
+  expiration: ${JWT_EXPIRATION:86400000}            # 24h access token
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}  # 7d refresh token
+
+paystack:
+  secret:
+    key: ${PAYSTACK_SECRET_KEY:sk_test_mock_key}
 
 management:
   endpoints:
@@ -75,5 +90,5 @@ management:
 
 logging:
   level:
-    com.jobprep.auth: ${LOG_LEVEL:INFO}
+    com.knust.codequest.authservice: ${LOG_LEVEL:INFO}
 

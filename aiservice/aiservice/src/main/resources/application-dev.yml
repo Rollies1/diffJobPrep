@@ -1,23 +1,47 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/jobprep_db
-    username: postgres
-    password: postgres
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/jobprep}
+    username: ${DATABASE_USER:jobprep}
+    password: ${DATABASE_PASSWORD:devpassword}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: ai
   flyway:
     enabled: true
     baseline-on-migrate: true
+    default-schema: ai
+    schemas: ai
+    create-schemas: true
 
 server:
   port: 8084
 
 jwt:
   secret: a-very-long-dummy-secret-key-for-testing-purposes-only-12345
+
+groq:
+  api:
+    key: ${GROQ_API_KEY:gsk_mock_key}
+
+gemini:
+  api:
+    key: ${GEMINI_API_KEY:gemini_mock_key}
+
+openrouter:
+  api:
+    key: ${OPENROUTER_API_KEY:sk-or-mock_key}
+
+qwen:
+  api:
+    key: ${QWEN_API_KEY:qwen_mock_key}
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY:sk-mock_key}
 
 ai:
   service:

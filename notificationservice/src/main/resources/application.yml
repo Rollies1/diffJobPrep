@@ -36,7 +36,7 @@ expo:
   batch-size: 100
 
 server:
-  port: 8083
+  port: 8088
 
 management:
   endpoints:
@@ -46,5 +46,5 @@ management:
 
 logging:
   level:
-    com.jobprep.notification: ${LOG_LEVEL:INFO}
+    com.knust.codequest.notification: ${LOG_LEVEL:INFO}
 

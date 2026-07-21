@@ -37,7 +37,7 @@ export function useSessionHeartbeat() {
     intervalRef.current = setInterval(() => {
       // Send heartbeat to SessionService
       // This is a background ping, no need to await or handle response
-      fetch(`${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080'}/sessions/heartbeat`, {
+      fetch(`${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8089/api'}/sessions/heartbeat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId }),

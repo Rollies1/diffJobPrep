@@ -1,5 +1,6 @@
 package com.knust.codequest.practiceservice.client;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -11,9 +12,13 @@ import java.util.UUID;
 public class SessionServiceClient {
 
     private final WebClient webClient;
+    private final String serviceSecret;
 
-    public SessionServiceClient(WebClient.Builder builder) {
-        this.webClient = builder.baseUrl("http://sessionservice:8080").build();
+    public SessionServiceClient(WebClient.Builder builder,
+                                @Value("${services.session.base-url}") String sessionBaseUrl,
+                                @Value("${services.shared-secret}") String serviceSecret) {
+        this.webClient = builder.baseUrl(sessionBaseUrl).build();
+        this.serviceSecret = serviceSecret;
     }
 
     public SessionDto createSession(String userId, UUID categoryId, String difficulty, int totalQuestions) {
@@ -26,7 +31,7 @@ public class SessionServiceClient {
         return webClient.post()
             .uri("/api/sessions")
             .header("X-Service-Origin", "practiceservice")
-            .header("X-Service-Secret", "${SERVICE_SHARED_SECRET}")
+            .header("X-Service-Secret", serviceSecret)
             .bodyValue(request)
             .retrieve()
             .bodyToMono(SessionDto.class)
@@ -37,7 +42,7 @@ public class SessionServiceClient {
         return webClient.get()
             .uri("/api/sessions/{id}", sessionId)
             .header("X-Service-Origin", "practiceservice")
-            .header("X-Service-Secret", "${SERVICE_SHARED_SECRET}")
+            .header("X-Service-Secret", serviceSecret)
             .retrieve()
             .bodyToMono(SessionDto.class)
             .block();
@@ -51,7 +56,7 @@ public class SessionServiceClient {
         return webClient.post()
             .uri("/api/sessions/{id}/answers", sessionId)
             .header("X-Service-Origin", "practiceservice")
-            .header("X-Service-Secret", "${SERVICE_SHARED_SECRET}")
+            .header("X-Service-Secret", serviceSecret)
             .bodyValue(request)
             .retrieve()
             .bodyToMono(SessionDto.class)
@@ -66,7 +71,7 @@ public class SessionServiceClient {
         return webClient.post()
             .uri("/api/sessions/{id}/complete", sessionId)
             .header("X-Service-Origin", "practiceservice")
-            .header("X-Service-Secret", "${SERVICE_SHARED_SECRET}")
+            .header("X-Service-Secret", serviceSecret)
             .bodyValue(request)
             .retrieve()
             .bodyToMono(SessionDto.class)
@@ -77,7 +82,7 @@ public class SessionServiceClient {
         webClient.post()
             .uri("/api/sessions/{id}/abandon", sessionId)
             .header("X-Service-Origin", "practiceservice")
-            .header("X-Service-Secret", "${SERVICE_SHARED_SECRET}")
+            .header("X-Service-Secret", serviceSecret)
             .retrieve()
             .toBodilessEntity()
             .block();
@@ -92,7 +97,7 @@ public class SessionServiceClient {
                 .queryParam("size", pageable.getPageSize())
                 .build())
             .header("X-Service-Origin", "practiceservice")
-            .header("X-Service-Secret", "${SERVICE_SHARED_SECRET}")
+            .header("X-Service-Secret", serviceSecret)
             .retrieve()
             .bodyToMono(new ParameterizedTypeReference<Page<SessionDto>>() {})
             .block();
@@ -105,7 +110,7 @@ public class SessionServiceClient {
                 .queryParam("userId", userId)
                 .build())
             .header("X-Service-Origin", "practiceservice")
-            .header("X-Service-Secret", "${SERVICE_SHARED_SECRET}")
+            .header("X-Service-Secret", serviceSecret)
             .retrieve()
             .bodyToMono(UserStatsDto.class)
             .block();
@@ -158,6 +163,7 @@ public class SessionServiceClient {
         private java.math.BigDecimal overallScore;
         private java.time.Instant startedAt;
         private java.time.Instant completedAt;
+        private java.util.List<SessionQuestionDto> questions;
         public UUID getId() { return id; }
         public void setId(UUID id) { this.id = id; }
         public String getUserId() { return userId; }
@@ -180,6 +186,23 @@ public class SessionServiceClient {
         public void setStartedAt(java.time.Instant startedAt) { this.startedAt = startedAt; }
         public java.time.Instant getCompletedAt() { return completedAt; }
         public void setCompletedAt(java.time.Instant completedAt) { this.completedAt = completedAt; }
+        public java.util.List<SessionQuestionDto> getQuestions() { return questions; }
+        public void setQuestions(java.util.List<SessionQuestionDto> questions) { this.questions = questions; }
+    }
+
+    public static class SessionQuestionDto {
+        private UUID questionId;
+        private String questionText;
+        private String userAnswer;
+        private java.util.List<String> expectedKeywords;
+        public UUID getQuestionId() { return questionId; }
+        public void setQuestionId(UUID questionId) { this.questionId = questionId; }
+        public String getQuestionText() { return questionText; }
+        public void setQuestionText(String questionText) { this.questionText = questionText; }
+        public String getUserAnswer() { return userAnswer; }
+        public void setUserAnswer(String userAnswer) { this.userAnswer = userAnswer; }
+        public java.util.List<String> getExpectedKeywords() { return expectedKeywords; }
+        public void setExpectedKeywords(java.util.List<String> expectedKeywords) { this.expectedKeywords = expectedKeywords; }
     }
 
     public static class UserStatsDto {

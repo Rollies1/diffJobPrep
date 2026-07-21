@@ -50,15 +50,20 @@ export function usePushNotifications({
 
     // 2. Get the Expo push token.
     try {
+      // projectId is required for standalone/EAS builds; in Expo Go the
+      // experience ID is used as a fallback. We pass projectId only if
+      // configured so registration is never silently skipped during dev.
       const projectId = Constants.expoConfig?.extra?.eas?.projectId
-      if (!projectId) {
-        console.log('[push] No EAS project ID found in app.json. Skipping push token registration.')
+      // In Expo Go without a configured EAS projectId, token registration
+      // will fail. Skip gracefully instead of throwing an error.
+      const isExpoGo = Constants.appOwnership === 'expo'
+      if (!projectId && isExpoGo) {
+        console.log('[push] Skipping push registration in Expo Go (no projectId configured)')
         return null
       }
-
-      const tokenData = await Notifications.getExpoPushTokenAsync({
-        projectId,
-      })
+      const tokenData = await Notifications.getExpoPushTokenAsync(
+        projectId ? { projectId } : undefined
+      )
       const token = tokenData.data
       tokenRef.current = token
 
@@ -67,7 +72,7 @@ export function usePushNotifications({
       console.log('[push] Registered:', token)
       return token
     } catch (e) {
-      console.error('[push] Failed to get token:', e)
+      console.warn('[push] Failed to get/register token:', e)
       return null
     }
   }, [])

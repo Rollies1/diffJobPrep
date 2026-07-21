@@ -33,8 +33,22 @@ idempotency:
   # Max key length (client-supplied UUID recommended).
   max-key-length: 128
 
+# ─── Inter-service URLs ───
+# Downstream services practiceservice calls directly (bypassing the gateway).
+services:
+  ai:
+    base-url: ${AI_SERVICE_URL:http://localhost:8084}
+  question:
+    base-url: ${QUESTION_SERVICE_URL:http://localhost:8083}
+  session:
+    base-url: ${SESSION_SERVICE_URL:http://localhost:8087}
+  shared-secret: ${SERVICE_SHARED_SECRET:dev-internal-key}
+
+jwt:
+  secret: ${JWT_SECRET:your-256-bit-secret-your-256-bit-secret-your-256-bit-secret}
+
 server:
-  port: 8086
+  port: 8081
 
 management:
   endpoints:
@@ -44,5 +58,5 @@ management:
 
 logging:
   level:
-    com.jobprep.practice: ${LOG_LEVEL:INFO}
+    com.knust.codequest.practiceservice: ${LOG_LEVEL:INFO}
 

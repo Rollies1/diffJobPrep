@@ -2,7 +2,8 @@ import React from 'react'
 import { View, Pressable, Text, StyleSheet } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Home, Library, Dumbbell, Bot, User } from 'lucide-react-native'
-import { gradients, colors, shadows } from '../theme'
+import { gradients, shadows } from '../theme'
+import { useThemeColors } from '../theme/useThemeColors'
 
 const TABS = [
   { key: 'home', label: 'Home', Icon: Home },
@@ -19,8 +20,9 @@ export function BottomNav({
   active?: string
   onTab?: (key: string) => void
 }) {
+  const c = useThemeColors()
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: c.navBg, borderTopColor: c.border }]}>
       <View style={styles.row}>
         {TABS.map((t) => {
           const isActive = t.key === active
@@ -33,14 +35,14 @@ export function BottomNav({
             >
               {isActive ? (
                 <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.activeIcon}>
-                  <Icon size={19} color="#fff" strokeWidth={2.4} />
+                  <Icon size={20} color="#fff" strokeWidth={2.4} />
                 </LinearGradient>
               ) : (
-                <View style={styles.inactiveIcon}>
-                  <Icon size={19} color={colors.textSubtle} strokeWidth={2} />
+                <View style={[styles.inactiveIcon, { backgroundColor: c.navInactiveBg }]}>
+                  <Icon size={20} color={c.textSubtle} strokeWidth={2} />
                 </View>
               )}
-              <Text style={[styles.label, { color: isActive ? colors.ink : colors.textSubtle }]}>
+              <Text style={[styles.label, { color: isActive ? c.ink : c.textSubtle, fontWeight: isActive ? '700' : '500' }]}>
                 {t.label}
               </Text>
             </Pressable>
@@ -57,16 +59,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(255,255,255,0.85)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.5)',
     paddingBottom: 20,
-    paddingTop: 8,
-    paddingHorizontal: 8,
+    paddingTop: 10,
+    paddingHorizontal: 4,
   },
-  row: { flexDirection: 'row', justifyContent: 'space-around' },
-  tab: { alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4 },
-  activeIcon: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
-  inactiveIcon: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  label: { fontSize: 10, fontWeight: '600' },
+  row: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
+  tab: { alignItems: 'center', justifyContent: 'center', gap: 6, flex: 1, paddingVertical: 6 },
+  activeIcon: { width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center', ...shadows.soft },
+  inactiveIcon: { width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  label: { fontSize: 11 },
 })

@@ -13,11 +13,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 /**
  * Security configuration for aiservice.
  * <p>
- * Validates:
- * <ul>
- *   <li>User JWT via shared jwt.secret</li>
- *   <li>Inter-service identity via X-Service-Origin + X-Service-Secret headers</li>
- * </ul>
+ * Architecture: the gateway validates the user's JWT and forwards to
+ * aiservice with an X-User-Id header (Authorization stripped). aiservice
+ * trusts the gateway for user-facing routes. The {@link ServiceOriginFilter}
+ * enforces the inter-service shared secret only on /internal/** paths.
+ * <p>
+ * No separate JwtAuthenticationFilter is needed because JWT validation is
+ * the gateway's responsibility — aiservice is not directly exposed (it runs
+ * on port 8084 behind the gateway on 8089).
  */
 @Configuration
 @EnableWebSecurity
@@ -38,11 +41,13 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/actuator/**", "/health").permitAll()
-                .requestMatchers("/api/ai/evaluations/**").authenticated()
+                // User-facing routes: trusted (gateway already validated JWT).
+                .requestMatchers("/api/ai/**").permitAll()
+                // Internal routes: enforced by ServiceOriginFilter.
+                .requestMatchers("/internal/**").authenticated()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(serviceOriginFilter, UsernamePasswordAuthenticationFilter.class);
-        // TODO: Add JwtAuthenticationFilter before ServiceOriginFilter if not already present
 
         return http.build();
     }

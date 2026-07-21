@@ -3,9 +3,9 @@ import EventSource, { EventSourceEvent } from 'react-native-sse'
 import * as storage from './storage'
 
 const SSE_BASE = Platform.select({
-  android: 'http://10.0.2.2:8089/api/v1/ai/stream',
-  ios: 'http://localhost:8089/api/v1/ai/stream',
-  default: 'http://10.0.2.2:8089/api/v1/ai/stream',
+  android: 'http://10.0.2.2:8089/api/ai/stream',
+  ios: 'http://localhost:8089/api/ai/stream',
+  default: 'http://10.0.2.2:8089/api/ai/stream',
 }) as string
 
 export type StreamToken = { type: 'token'; content: string }

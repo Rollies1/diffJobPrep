@@ -43,12 +43,12 @@ export function useAIStream() {
 
     try {
       const baseUrl = Platform.OS === 'android' 
-        ? 'http://10.0.2.2:8080' 
-        : 'http://localhost:8080';
+        ? 'http://10.0.2.2:8089' 
+        : 'http://localhost:8089';
 
       const token = await SecureStore.getItemAsync('access_token');
 
-      const response = await fetch(`${baseUrl}/api/v1/ai/chat`, {
+      const response = await fetch(`${baseUrl}/api/ai/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

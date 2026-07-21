@@ -2,40 +2,23 @@ package com.knust.codequest.questionservice.dto;
 
 import java.util.List;
 
+/**
+ * Result of a batch sync. Mirrors the frontend {@code SyncResponse} type 1:1.
+ */
 public class SyncResponse {
-    private List<String> acknowledgedActionIds;
-    private List<QuestionDto> serverChanges;
-    private String serverTimestamp;
+
+    private int applied;
+    private List<String> conflicts;
 
     public SyncResponse() {}
 
-    public SyncResponse(List<String> acknowledgedActionIds, List<QuestionDto> serverChanges, String serverTimestamp) {
-        this.acknowledgedActionIds = acknowledgedActionIds;
-        this.serverChanges = serverChanges;
-        this.serverTimestamp = serverTimestamp;
+    public SyncResponse(int applied, List<String> conflicts) {
+        this.applied = applied;
+        this.conflicts = conflicts;
     }
 
-    public List<String> getAcknowledgedActionIds() {
-        return acknowledgedActionIds;
-    }
-
-    public void setAcknowledgedActionIds(List<String> acknowledgedActionIds) {
-        this.acknowledgedActionIds = acknowledgedActionIds;
-    }
-
-    public List<QuestionDto> getServerChanges() {
-        return serverChanges;
-    }
-
-    public void setServerChanges(List<QuestionDto> serverChanges) {
-        this.serverChanges = serverChanges;
-    }
-
-    public String getServerTimestamp() {
-        return serverTimestamp;
-    }
-
-    public void setServerTimestamp(String serverTimestamp) {
-        this.serverTimestamp = serverTimestamp;
-    }
+    public int getApplied() { return applied; }
+    public void setApplied(int applied) { this.applied = applied; }
+    public List<String> getConflicts() { return conflicts; }
+    public void setConflicts(List<String> conflicts) { this.conflicts = conflicts; }
 }

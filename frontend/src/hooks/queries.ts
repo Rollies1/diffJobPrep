@@ -53,6 +53,24 @@ export function useLogout() {
   })
 }
 
+export function useUpdateProfile() {
+  const updateUser = useAuthStore((s) => s.updateUser)
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: import('../types/api').ProfileUpdateRequest) => authService.updateProfile(body),
+    onSuccess: (user) => {
+      updateUser(user)
+      qc.invalidateQueries({ queryKey: ['stats'] })
+    },
+  })
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (body: { currentPassword: string; newPassword: string }) => authService.changePassword(body),
+  })
+}
+
 /* ── Questions & Decks ───────────────────────────────────────── */
 
 export function useDecks() {

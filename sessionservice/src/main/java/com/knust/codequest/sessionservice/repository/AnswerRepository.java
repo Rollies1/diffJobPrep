@@ -1,6 +1,6 @@
 package com.knust.codequest.sessionservice.repository;
 
-import com.knust.codequest.sessionservice.model.SessionAnswer;
+import com.knust.codequest.sessionservice.entity.SessionAnswer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -60,7 +60,31 @@ public class PracticeController {
         return ResponseEntity.noContent().build();
     }
 
+    /** POST /practice/sessions/{sessionId}/next — advance to the next question. */
+    @PostMapping("/sessions/{sessionId}/next")
+    public ResponseEntity<NextQuestionResponse> nextQuestion(
+            @PathVariable UUID sessionId,
+            @AuthenticationPrincipal String userId) {
+        return ResponseEntity.ok(practiceService.nextQuestion(sessionId));
+    }
+
+    /** POST /practice/sync — upload an offline-completed session. */
+    @PostMapping("/sync")
+    public ResponseEntity<SessionResult> syncOffline(
+            @RequestBody SyncPayload payload,
+            @AuthenticationPrincipal String userId) {
+        return ResponseEntity.ok(practiceService.syncOffline(payload));
+    }
+
+    /**
+     * GET /api/practice/sessions — list the user's sessions (offset pagination).
+     * @deprecated The ecosystem standard is cursor pagination (see
+     * sessionservice GET /api/sessions/history). This offset endpoint is kept
+     * for backward compatibility but new callers should use the cursor-based
+     * /api/sessions/history via the gateway.
+     */
     @GetMapping("/sessions")
+    @Deprecated
     public ResponseEntity<Page<PracticeSessionDto>> getMySessions(
             Pageable pageable,
             @AuthenticationPrincipal String userId) {

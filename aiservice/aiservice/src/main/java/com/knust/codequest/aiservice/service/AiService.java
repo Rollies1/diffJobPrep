@@ -67,6 +67,63 @@ public class AiService {
         return fallbackEvaluate(request);
     }
 
+    /**
+     * Conversational chat for the AI tutor. Tries the same provider failover
+     * chain as {@link #evaluate}; returns a canned helpful reply if no
+     * provider key is configured.
+     */
+    public String chat(String message) {
+        if (message == null || message.isBlank()) {
+            return "Hi! I'm your AI interview tutor. Ask me anything about system design, algorithms, or behavioral questions.";
+        }
+
+        try {
+            if (isValidKey(groqApiKey)) {
+                return chatViaGroq(message);
+            }
+        } catch (Exception e) {
+            System.out.println("Groq chat unavailable: " + e.getMessage());
+        }
+
+        // Fallback: echo a helpful canned reply.
+        return fallbackChat(message);
+    }
+
+    private String chatViaGroq(String message) throws Exception {
+        String requestBody = objectMapper.writeValueAsString(Map.of(
+                "model", "llama-3.3-70b-versatile",
+                "messages", List.of(
+                        Map.of("role", "system", "content",
+                                "You are JobPrep's AI interview tutor. Give clear, concise, practical advice."),
+                        Map.of("role", "user", "content", message)
+                ),
+                "max_tokens", 400
+        ));
+
+        HttpResponse<String> response = sendRequest(
+                "https://api.groq.com/openai/v1/chat/completions",
+                "Bearer " + groqApiKey,
+                requestBody);
+
+        JsonNode json = objectMapper.readTree(response.body());
+        return json.path("choices").path(0).path("message").path("content").asText(
+                "I couldn't generate a response right now. Please try again.");
+    }
+
+    private String fallbackChat(String message) {
+        String lower = message.toLowerCase();
+        if (lower.contains("system design")) {
+            return "For system design, start by clarifying requirements (functional + non-functional), then sketch the high-level components (load balancer, app servers, DB, cache), discuss trade-offs (consistency vs availability, SQL vs NoSQL), and finish with bottleneck analysis and scaling strategy.";
+        }
+        if (lower.contains("behavioral")) {
+            return "For behavioral questions, use the STAR method: Situation, Task, Action, Result. Keep it concise, focus on YOUR contribution, and end with a measurable outcome.";
+        }
+        if (lower.contains("algorithm") || lower.contains("coding")) {
+            return "For coding interviews: clarify the problem, discuss edge cases, start with a brute-force solution, then optimize. Communicate your thought process throughout — interviewers care about HOW you think, not just the final code.";
+        }
+        return "Great question! In a real deployment this would be answered by the configured LLM provider (Groq/Gemini/OpenRouter). Set GROQ_API_KEY to get live responses. For now, try asking about system design, behavioral questions, or algorithms.";
+    }
+
     private boolean isValidKey(String key) {
         if (key == null) return false;
         String trimmed = key.trim();

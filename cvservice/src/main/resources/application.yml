@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: cvservice
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/jobprep}
+    username: ${DATABASE_USER:jobprep}
+    password: ${DATABASE_PASSWORD:devpassword}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: cv
+
+  flyway:
+    enabled: true
+    default-schema: cv
+    schemas: cv
+    create-schemas: true
+
+server:
+  port: 8086
+
+logging:
+  level:
+    com.knust.codequest.cvservice: ${LOG_LEVEL:INFO}

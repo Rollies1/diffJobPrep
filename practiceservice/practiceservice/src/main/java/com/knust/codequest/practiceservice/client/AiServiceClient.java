@@ -1,5 +1,6 @@
 package com.knust.codequest.practiceservice.client;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -11,9 +12,13 @@ import java.util.UUID;
 public class AiServiceClient {
 
     private final WebClient webClient;
+    private final String serviceSecret;
 
-    public AiServiceClient(WebClient.Builder builder) {
-        this.webClient = builder.baseUrl("http://aiservice:8080").build();
+    public AiServiceClient(WebClient.Builder builder,
+                           @Value("${services.ai.base-url}") String aiBaseUrl,
+                           @Value("${services.shared-secret}") String serviceSecret) {
+        this.webClient = builder.baseUrl(aiBaseUrl).build();
+        this.serviceSecret = serviceSecret;
     }
 
     public EvaluationResponse submitEvaluation(UUID sessionId, List<AnswerDto> answers) {
@@ -26,7 +31,7 @@ public class AiServiceClient {
         return webClient.post()
             .uri("/api/ai/evaluations")
             .header("X-Service-Origin", "practiceservice")
-            .header("X-Service-Secret", "${SERVICE_SHARED_SECRET}")
+            .header("X-Service-Secret", serviceSecret)
             .bodyValue(request)
             .retrieve()
             .bodyToMono(EvaluationResponse.class)

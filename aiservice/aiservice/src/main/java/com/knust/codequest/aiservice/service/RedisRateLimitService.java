@@ -30,7 +30,7 @@ public class RedisRateLimitService implements RateLimitService {
 
     private static final Logger log = LoggerFactory.getLogger(RedisRateLimitService.class);
 
-    private final ProxyManager<String> proxyManager;
+    private final ProxyManager<byte[]> proxyManager;
     private final Bandwidth defaultBandwidth;
 
     public RedisRateLimitService(
@@ -39,11 +39,11 @@ public class RedisRateLimitService implements RateLimitService {
             @Value("${ai.rate-limit.evaluations-per-hour:5}") int evaluationsPerHour) {
 
         RedisClient redisClient = RedisClient.create("redis://" + redisHost + ":" + redisPort);
-        StatefulRedisConnection<String, byte[]> connection = redisClient.connect();
+        StatefulRedisConnection<byte[], byte[]> connection = redisClient.connect(io.lettuce.core.codec.ByteArrayCodec.INSTANCE);
 
         this.proxyManager = LettuceBasedProxyManager.builderFor(connection)
             .withExpirationStrategy(
-                io.github.bucket4j.distributed.proxy.ExpirationAfterWriteStrategy
+                io.github.bucket4j.distributed.ExpirationAfterWriteStrategy
                     .basedOnTimeForRefillingBucketUpToMax(Duration.ofHours(1))
             )
             .build();
@@ -56,8 +56,9 @@ public class RedisRateLimitService implements RateLimitService {
 
     @Override
     public boolean isAllowed(String userId) {
+        byte[] key = userId != null ? userId.getBytes(java.nio.charset.StandardCharsets.UTF_8) : new byte[0];
         Bucket bucket = proxyManager.builder()
-            .build(userId, () -> BucketConfiguration.builder()
+            .build(key, () -> BucketConfiguration.builder()
                 .addLimit(defaultBandwidth)
                 .build());
 

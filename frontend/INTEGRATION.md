@@ -19,8 +19,8 @@ The app expects the Spring Boot gateway running at:
 
 Platform
 URL
-Android emulator	http://10.0.2.2:8089/api/v1
-iOS simulator	http://localhost:8089/api/v1
+Android emulator	http://10.0.2.2:8089/api
+iOS simulator	http://localhost:8089/api
 
 Update in src/services/api.ts if your port differs.
 

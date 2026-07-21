@@ -9,7 +9,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/work-records")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class WorkRecordController {
 
     private final WorkRecordService service;
