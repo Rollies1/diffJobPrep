@@ -66,9 +66,11 @@ export interface QuestionDto {
   deckId: string
   title: string
   content: string
-  difficulty: string // Easy | Medium | Hard
+  difficulty: string // EASY | MEDIUM | HARD
   hint: string | null
   category: string
+  /** Fine-grained sub-topic within the deck (e.g. "Hooks", "Closures"). */
+  subTopic?: string | null
   options: string[]
   bookmarked: boolean
   completed: boolean
@@ -87,6 +89,8 @@ export interface SessionConfig {
   questionCount: number | null
   timeLimitMs: number | null
   adaptive: boolean | null
+  /** Mirrors the backend StartPracticeRequest.Mode enum. Optional + defaulted. */
+  mode?: 'QUICK' | 'MOCK'
 }
 
 export interface StartSessionRequest {

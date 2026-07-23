@@ -25,6 +25,8 @@ import {
   Check,
   X,
   Edit3,
+  Crown,
+  Sparkles,
 } from 'lucide-react-native'
 import { Avatar } from '../components/primitives'
 import { useAuthStore } from '../store/useAuthStore'
@@ -32,6 +34,7 @@ import { useLogout, useUpdateProfile, useChangePassword } from '../hooks/queries
 import { useAppearanceStore } from '../stores/useAppearanceStore'
 import { gradients, shadows } from '../theme'
 import { useThemeColors } from '../theme/useThemeColors'
+import PaywallScreen from './PaywallScreen'
 
 export default function ProfileScreen() {
   const user = useAuthStore((s) => s.user)
@@ -55,6 +58,9 @@ export default function ProfileScreen() {
   const themeMode = useAppearanceStore((s) => s.mode)
   const setThemeMode = useAppearanceStore((s) => s.setMode)
   const [notifEnabled, setNotifEnabled] = useState(true)
+
+  // Premium upsell
+  const [paywallVisible, setPaywallVisible] = useState(false)
 
   const displayName = user?.name || user?.username || 'there'
   const avatarName = user?.username || user?.name || displayName
@@ -107,7 +113,8 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: c.bg }]} contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
+    <>
+      <ScrollView style={[styles.container, { backgroundColor: c.bg }]} contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.headerTitle, { color: c.ink }]}>Profile</Text>
@@ -135,6 +142,35 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
       </View>
+
+      {/* Premium upgrade banner — only for non-premium users. */}
+      {!user?.isPremium && (
+        <View style={styles.sectionWrap}>
+          <Pressable
+            onPress={() => setPaywallVisible(true)}
+            style={({ pressed }) => [{ opacity: pressed ? 0.95 : 1 }]}
+          >
+            <LinearGradient
+              colors={gradients.primary as string[]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.upgradeCard}
+            >
+              <View style={styles.upgradeIcon}>
+                <Crown size={18} color="#fff" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.upgradeTitle}>Unlock JobPrep Premium</Text>
+                <Text style={styles.upgradeSub}>1,200+ questions · AI tutor · mock interviews</Text>
+              </View>
+              <View style={styles.upgradeCta}>
+                <Sparkles size={12} color={c.blue} />
+                <Text style={styles.upgradeCtaText}>Upgrade</Text>
+              </View>
+            </LinearGradient>
+          </Pressable>
+        </View>
+      )}
 
       {/* Account section */}
       <SectionHeader label="Account" color={c.textSubtle} />
@@ -268,6 +304,10 @@ export default function ProfileScreen() {
 
       <Text style={[styles.version, { color: c.textSubtle }]}>JobPrep v1.0.0</Text>
     </ScrollView>
+
+      {/* Premium upsell modal — opened from the upgrade banner. */}
+      <PaywallScreen visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
+    </>
   )
 }
 
@@ -379,4 +419,10 @@ const styles = StyleSheet.create({
   logoutBtn: { height: 50, borderRadius: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, borderWidth: 1 },
   logoutText: { fontSize: 14, fontWeight: '700' },
   version: { fontSize: 11, fontWeight: '600', textAlign: 'center', marginTop: 20 },
+  upgradeCard: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, padding: 14, ...shadows.soft },
+  upgradeIcon: { width: 40, height: 40, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' },
+  upgradeTitle: { fontSize: 14, fontWeight: '800', color: '#fff' },
+  upgradeSub: { fontSize: 11, fontWeight: '500', color: 'rgba(255,255,255,0.82)', marginTop: 2 },
+  upgradeCta: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#fff', borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
+  upgradeCtaText: { fontSize: 12, fontWeight: '800' },
 })

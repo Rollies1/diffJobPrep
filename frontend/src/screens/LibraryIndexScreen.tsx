@@ -9,26 +9,38 @@ import { useDecks } from '../hooks/queries'
 import { colors, gradients, shadows } from '../theme'
 import type { DeckDto } from '../types/api'
 
-const MOCK_DECKS: DeckDto[] = [
-  { id: '1', title: 'Two Pointers', category: 'Algorithms', color: '#2e8bee', questionCount: 24, completedCount: 15, description: '' },
-  { id: '2', title: 'Leadership Stories', category: 'Behavioral', color: '#18b6c5', questionCount: 18, completedCount: 18, description: '' },
-  { id: '3', title: 'System Design 101', category: 'System Design', color: '#f2c94c', questionCount: 32, completedCount: 18, description: '' },
-  { id: '4', title: 'Frontend Deep Dive', category: 'Frontend', color: '#f59e0b', questionCount: 27, completedCount: 0, description: '' },
-  { id: '5', title: 'SQL Mastery', category: 'Databases', color: '#2e8bee', questionCount: 21, completedCount: 7, description: '' },
-  { id: '6', title: 'React Internals', category: 'Frontend', color: '#fb7b3a', questionCount: 15, completedCount: 0, description: '' },
-]
-
 const CATEGORY_EMOJIS: Record<string, string> = {
-  Algorithms: '🎯', Behavioral: '🧭', 'System Design': '🏗️', Frontend: '⚛️',
-  Databases: '🗄️', 'AI/ML': '🤖',
+  Frontend: '⚛️', Backend: '🧩', Database: '🗄️', Architecture: '🏗️',
+  'CS Fundamentals': '🔢', DevOps: '🚀', Infrastructure: '🌐', Security: '🔐',
+  Tools: '🔧', Mobile: '📱', 'AI/ML': '🤖', Data: '🛢️',
+  Mathematics: '➗', Physics: '🔭', Chemistry: '⚗️', Biology: '🧬',
+  Astronomy: '🌠', 'Earth Science': '🌍', Environment: '🌱', History: '📜',
+  Humanities: '🎭', 'Social Science': '👥', Business: '💼', Design: '🎨',
+  Medicine: '⚕️', 'Soft Skills': '🤝',
+  // legacy aliases
+  Algorithms: '🎯', Behavioral: '🧭', 'System Design': '🏗️',
+  Databases: '🗄️', 'Cloud & Infrastructure': '☁️', 'Testing & QA': '🧪',
+  'Product & Architecture': '📐',
 }
 const CATEGORY_TINTS: Record<string, string[]> = {
-  Algorithms: [colors.blue, colors.teal],
-  Behavioral: [colors.teal, colors.tealGreen],
-  'System Design': [colors.gold, colors.amber],
-  Frontend: [colors.amber, colors.orange],
-  Databases: [colors.blue, '#8b5cf6'],
-  'AI/ML': ['#8b5cf6', colors.blue],
+  Frontend: ['#61DAFB', '#2e8bee'], Backend: ['#339933', '#18b6c5'],
+  Database: ['#4479A1', '#8b5cf6'], Architecture: ['#8E44AD', '#6C3483'],
+  'CS Fundamentals': ['#E67E22', '#F39C12'], DevOps: ['#FF9900', '#326CE5'],
+  Infrastructure: ['#5DADE2', '#2e8bee'], Security: ['#2C3E50', '#ef4444'],
+  Tools: ['#F05032', '#eab308'], Mobile: ['#9C27B0', '#ec4899'],
+  'AI/ML': ['#FF6F00', '#673AB7'], Data: ['#FFA000', '#E25A1C'],
+  Mathematics: ['#C0392B', '#2980B9'], Physics: ['#3498DB', '#9B59B6'],
+  Chemistry: ['#E74C3C', '#F39C12'], Biology: ['#2ECC71', '#1ABC9C'],
+  Astronomy: ['#2C3E50', '#8E44AD'], 'Earth Science': ['#795548', '#a16207'],
+  Environment: ['#27AE60', '#16A085'], History: ['#8E44AD', '#6C3483'],
+  Humanities: ['#34495E', '#C0392B'], 'Social Science': ['#16A085', '#E91E63'],
+  Business: ['#00BCD4', '#7B1FA2'], Design: ['#E91E63', '#FF6F00'],
+  Medicine: ['#C2185B', '#00838F'], 'Soft Skills': ['#5D4037', '#8D6E63'],
+  // legacy aliases
+  Algorithms: [colors.blue, colors.teal], Behavioral: [colors.teal, colors.tealGreen],
+  'System Design': [colors.gold, colors.amber], Databases: [colors.blue, '#8b5cf6'],
+  'Cloud & Infrastructure': ['#0ea5e9', colors.blue], 'Testing & QA': ['#eab308', colors.amber],
+  'Product & Architecture': ['#a855f7', colors.blue],
 }
 
 export default function LibraryIndexScreen({ onOpenDeck, onTab }: { onOpenDeck?: (deck: DeckDto) => void; onTab?: (key: string) => void }) {
@@ -36,7 +48,7 @@ export default function LibraryIndexScreen({ onOpenDeck, onTab }: { onOpenDeck?:
   const [category, setCategory] = useState('All')
   const { data: decks, isLoading } = useDecks()
 
-  const allDecks = decks && decks.length > 0 ? decks : MOCK_DECKS
+  const allDecks = decks ?? []
   const categories = ['All', ...Array.from(new Set(allDecks.map((d) => d.category)))]
   const filtered = allDecks.filter((d) => {
     const matchCat = category === 'All' || d.category === category
@@ -90,6 +102,16 @@ export default function LibraryIndexScreen({ onOpenDeck, onTab }: { onOpenDeck?:
         <SectionLabel label="All decks" style={{ marginTop: 20 }} />
         {isLoading ? (
           <View style={{ padding: 40, alignItems: 'center' }}><ActivityIndicator color={colors.blue} /></View>
+        ) : filtered.length === 0 ? (
+          <View style={{ padding: 40, alignItems: 'center' }}>
+            <Text style={{ fontSize: 28, marginBottom: 8 }}>🔍</Text>
+            <Text style={{ fontSize: 13, fontWeight: '700', color: colors.ink }}>No decks found</Text>
+            <Text style={{ fontSize: 11, color: colors.textSubtle, marginTop: 4, textAlign: 'center' }}>
+              {allDecks.length === 0
+                ? 'Pull down to sync the library from the server.'
+                : 'Try a different category or search term.'}
+            </Text>
+          </View>
         ) : (
           <View style={styles.grid}>
             {filtered.map((d) => (

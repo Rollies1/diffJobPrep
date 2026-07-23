@@ -31,10 +31,25 @@ public class PracticeService {
     }
 
     public PracticeSessionDto startPractice(String userId, StartPracticeRequest request) {
+        // MOCK mode enforces a timed mock-interview budget. We clamp the
+        // question count to the mock budget (10) and bump the difficulty to at
+        // least MEDIUM so mocks are never trivially easy. QUICK mode passes the
+        // request through unchanged.
+        StartPracticeRequest.Mode mode = request.getMode() == null
+            ? StartPracticeRequest.Mode.QUICK : request.getMode();
+        int questionCount = request.getQuestionCount();
+        StartPracticeRequest.Difficulty difficulty = request.getDifficulty();
+        if (mode == StartPracticeRequest.Mode.MOCK) {
+            questionCount = Math.min(questionCount, 10);
+            if (difficulty == StartPracticeRequest.Difficulty.EASY) {
+                difficulty = StartPracticeRequest.Difficulty.MEDIUM;
+            }
+        }
+
         List<QuestionSlotDto> questions = questionClient.getRandomQuestions(
             request.getCategoryId(),
-            request.getDifficulty().name(),
-            request.getQuestionCount()
+            difficulty.name(),
+            questionCount
         );
 
         if (questions == null || questions.isEmpty()) {
@@ -44,7 +59,7 @@ public class PracticeService {
         SessionServiceClient.SessionDto session = sessionClient.createSession(
             userId,
             request.getCategoryId(),
-            request.getDifficulty().name(),
+            difficulty.name(),
             questions.size()
         );
 
@@ -61,8 +76,8 @@ public class PracticeService {
         }
         dto.setQuestions(questions);
 
-        log.info("Started practice session id={} for user={} with {} questions",
-            session.getId(), userId, questions.size());
+        log.info("Started {} practice session id={} for user={} with {} questions",
+            mode, session.getId(), userId, questions.size());
         return dto;
     }
 

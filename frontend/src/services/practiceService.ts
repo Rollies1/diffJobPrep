@@ -22,6 +22,8 @@ export interface SessionConfig {
   questionCount?: number;
   timeLimitMs?: number;
   adaptive?: boolean;
+  /** Mirrors the backend StartPracticeRequest.Mode enum. */
+  mode?: 'QUICK' | 'MOCK';
 }
 
 export interface StartSessionRequest {

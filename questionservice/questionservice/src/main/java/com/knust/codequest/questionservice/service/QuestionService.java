@@ -2,8 +2,10 @@ package com.knust.codequest.questionservice.service;
 
 import com.knust.codequest.questionservice.dto.*;
 import com.knust.codequest.questionservice.entity.Category;
+import com.knust.codequest.questionservice.entity.Deck;
 import com.knust.codequest.questionservice.entity.Question;
 import com.knust.codequest.questionservice.repository.CategoryRepository;
+import com.knust.codequest.questionservice.repository.DeckRepository;
 import com.knust.codequest.questionservice.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ public class QuestionService {
 
     private final CategoryRepository categoryRepository;
     private final QuestionRepository questionRepository;
+    private final DeckRepository deckRepository;
 
     // ── Categories ───────────────────────────────────────────────
 
@@ -49,15 +52,40 @@ public class QuestionService {
      * practiceservice's QuestionSlotDto 1:1 so Jackson deserialization works.
      */
     public List<QuestionSlotDto> getRandomQuestionSlots(UUID categoryId, String difficulty, int count) {
-        return getRandomQuestions(categoryId, difficulty, count).stream()
+        return getRandomQuestions(categoryId, null, difficulty, count).stream()
                 .map(this::toSlotDto)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Deck-scoped random slots. When a deckId is supplied the pool is restricted
+     * to that deck (optionally filtered by difficulty), which is what the
+     * frontend PracticeSetupScreen "quick practice" + deck-start flows need.
+     */
+    public List<QuestionSlotDto> getRandomQuestionSlotsByDeck(UUID deckId, String difficulty, int count) {
+        List<Question> pool = difficulty == null || difficulty.isBlank()
+                ? questionRepository.findByDeckId(deckId)
+                : questionRepository.findByDeckIdAndDifficultyIgnoreCase(deckId, difficulty);
+        java.util.Collections.shuffle(pool);
+        int n = Math.min(Math.max(count, 1), pool.size());
+        return pool.subList(0, n).stream().map(this::toSlotDto).collect(Collectors.toList());
+    }
+
     /** Raw entity fetch (admin/debug). */
     public List<Question> getRandomQuestions(UUID categoryId, String difficulty, int count) {
+        return getRandomQuestions(categoryId, null, difficulty, count);
+    }
+
+    /**
+     * Unified random fetch. Either {@code deckId} or {@code categoryId} scopes
+     * the pool; if both are null the whole bank is used. This keeps the legacy
+     * /api/questions/random contract intact while enabling deck-based practice.
+     */
+    public List<Question> getRandomQuestions(UUID categoryId, UUID deckId, String difficulty, int count) {
         List<Question> pool;
-        if (categoryId != null) {
+        if (deckId != null) {
+            pool = questionRepository.findByDeckId(deckId);
+        } else if (categoryId != null) {
             pool = questionRepository.findByCategoryId(categoryId);
         } else {
             pool = questionRepository.findAll();
@@ -90,19 +118,46 @@ public class QuestionService {
 
     // ── Decks ────────────────────────────────────────────────────
 
+    /**
+     * All decks, ordered by title. The frontend Library screens and the
+     * PracticeSetupScreen quick-start carousel both consume this list.
+     * {@code completedCount} is 0 here because per-user progress is owned by
+     * sessionservice; the frontend overlays progress from its local SQLite.
+     */
     public List<DeckDto> getDecks() {
-        return List.of();
+        return deckRepository.findAllByOrderByTitleAsc().stream()
+                .map(this::toDeckDto)
+                .collect(Collectors.toList());
     }
 
-    /** Cursor-paginated questions for a deck. */
+    /** Single deck by id — used by deck-start + deep links. */
+    public DeckDto getDeck(UUID deckId) {
+        return deckRepository.findById(deckId)
+                .map(this::toDeckDto)
+                .orElseThrow(() -> new RuntimeException("Deck not found: " + deckId));
+    }
+
+    /**
+     * Cursor-paginated questions for a deck. The cursor is the last question's
+     * UUID; the next page fetches questions with id &gt; cursor within the deck.
+     * Falls back to the legacy all-questions pagination if the deckId is blank.
+     */
     public PaginatedQuestionsResponse getQuestionsByDeck(String deckId, String cursor, int limit) {
         int size = Math.min(Math.max(limit, 1), 100);
         Page<Question> page;
-        if (cursor == null || cursor.isBlank()) {
+
+        if (deckId != null && !deckId.isBlank()) {
+            UUID deckUuid = UUID.fromString(deckId);
+            if (cursor == null || cursor.isBlank()) {
+                page = questionRepository.findByDeckIdOrderByIdAsc(deckUuid, PageRequest.of(0, size));
+            } else {
+                page = questionRepository.findByIdGreaterThanAndDeckIdOrderByIdAsc(
+                        UUID.fromString(cursor), deckUuid, PageRequest.of(0, size));
+            }
+        } else if (cursor == null || cursor.isBlank()) {
             page = questionRepository.findAll(PageRequest.of(0, size));
         } else {
-            UUID cursorId = UUID.fromString(cursor);
-            page = questionRepository.findByIdGreaterThanOrderByIdAsc(cursorId, PageRequest.of(0, size));
+            page = questionRepository.findByIdGreaterThanOrderByIdAsc(UUID.fromString(cursor), PageRequest.of(0, size));
         }
 
         List<QuestionDto> data = page.getContent().stream()
@@ -140,15 +195,29 @@ public class QuestionService {
 
     // ── helpers ──────────────────────────────────────────────────
 
+    private DeckDto toDeckDto(Deck d) {
+        return DeckDto.builder()
+                .id(String.valueOf(d.getId()))
+                .title(d.getTitle())
+                .category(d.getCategory())
+                .color(d.getColorHex())
+                .questionCount(d.getQuestionCount())
+                // Per-user completion is owned by sessionservice; the frontend
+                // overlays progress from its local SQLite, so we surface 0 here.
+                .completedCount(0)
+                .build();
+    }
+
     private QuestionDto toQuestionDto(Question q) {
         return QuestionDto.builder()
                 .id(String.valueOf(q.getId()))
-                .deckId(null)
-                .title(q.getQuestion())
-                .content(q.getSampleAnswer())
+                .deckId(q.getDeck() != null ? String.valueOf(q.getDeck().getId()) : null)
+                .title(q.getTitle() != null ? q.getTitle() : q.getQuestion())
+                .content(q.getQuestion())
                 .difficulty(q.getDifficulty())
-                .hint(null)
+                .hint(q.getHint())
                 .category(q.getCategory() != null ? q.getCategory().getName() : null)
+                .subTopic(q.getSubTopic())
                 .options(List.of())
                 .bookmarked(false)
                 .completed(false)

@@ -23,6 +23,15 @@ public class Question {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    /**
+     * Optional deck membership. Seeded by V4 for the 700 deck-organised
+     * questions; legacy category-only questions have a null deck_id and still
+     * work via /api/questions/category/{id}.
+     */
+    @ManyToOne
+    @JoinColumn(name = "deck_id")
+    private Deck deck;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String question;
 
@@ -31,4 +40,16 @@ public class Question {
 
     @Column
     private String difficulty;
+
+    /** Short human-readable title for list views. Added by V4. */
+    @Column(length = 200)
+    private String title;
+
+    /** Optional nudge shown when a learner is stuck. Added by V4. */
+    @Column(columnDefinition = "TEXT")
+    private String hint;
+
+    /** Fine-grained sub-topic within the deck (e.g. "Hooks", "Closures"). Added by V4. */
+    @Column(name = "sub_topic", length = 120)
+    private String subTopic;
 }

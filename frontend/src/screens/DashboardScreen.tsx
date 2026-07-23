@@ -43,7 +43,7 @@ function greeting() {
   return { text: 'Good night', emoji: '🌙' }
 }
 
-export default function DashboardScreen({ onTab }: { onTab?: (key: string) => void }) {
+export default function DashboardScreen({ onTab, onExplore }: { onTab?: (key: string) => void; onExplore?: () => void }) {
   const user = useAuthStore((s) => s.user)
   const { data: stats, isLoading: statsLoading } = useStats()
   const { data: activity } = useActivity(7)
@@ -194,6 +194,24 @@ export default function DashboardScreen({ onTab }: { onTab?: (key: string) => vo
             </View>
           ))}
         </View>
+
+        {/* Explore library — gateway to the full deck index. */}
+        {onExplore && (
+          <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
+            <Pressable onPress={onExplore} style={({ pressed }) => [styles.card, { padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12, opacity: pressed ? 0.95 : 1 }]}>
+              <View style={{ width: 40, height: 40, borderRadius: 14, overflow: 'hidden' }}>
+                <LinearGradient colors={[colors.amber, colors.orange]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ fontSize: 20 }}>🧭</Text>
+                </LinearGradient>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>Explore the library</Text>
+                <Text style={[styles.cardSubtext, { marginTop: 2 }]}>Browse all decks by category & difficulty</Text>
+              </View>
+              <ChevronRight size={16} color={colors.textSubtle} />
+            </Pressable>
+          </View>
+        )}
 
         {/* Recent sessions */}
         <SectionTitle title="Recent sessions" action={<Text style={styles.link}>See all</Text>} />

@@ -11,6 +11,7 @@ import { Avatar } from '../components/primitives'
 import { useLogout } from '../hooks/queries'
 import { useAuthStore } from '../store/useAuthStore'
 import { colors, gradients, shadows } from '../theme'
+import PaywallScreen from './PaywallScreen'
 
 export default function SettingsScreen({ onBack }: { onBack?: () => void }) {
   const user = useAuthStore((s) => s.user)
@@ -22,6 +23,9 @@ export default function SettingsScreen({ onBack }: { onBack?: () => void }) {
   const [adaptive, setAdaptive] = useState(true)
   const [autoPlay, setAutoPlay] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
+  const [paywallVisible, setPaywallVisible] = useState(false)
+
+  const subscriptionValue = user?.isPremium ? 'Premium · Active' : 'Free · Tap to upgrade'
 
   return (
     <View style={styles.container}>
@@ -51,7 +55,7 @@ export default function SettingsScreen({ onBack }: { onBack?: () => void }) {
         <View style={styles.cardGroup}>
           <NavRow icon={<Mail size={16} color="#fff" />} tint={[colors.blue, colors.teal]} label="Email & password" value="Verified" />
           <NavRow icon={<Smartphone size={16} color="#fff" />} tint={[colors.teal, colors.tealGreen]} label="Linked devices" value="2 devices" />
-          <NavRow icon={<Crown size={16} color="#fff" />} tint={[colors.gold, colors.orange]} label="Subscription" value="Premium · $9.99/mo" last />
+          <NavRow icon={<Crown size={16} color="#fff" />} tint={[colors.gold, colors.orange]} label="Subscription" value={subscriptionValue} onPress={() => setPaywallVisible(true)} last />
         </View>
 
         {/* Notifications */}
@@ -111,6 +115,9 @@ export default function SettingsScreen({ onBack }: { onBack?: () => void }) {
           <Text style={styles.madeText}>Made with 💛 in Accra</Text>
         </View>
       </ScrollView>
+
+      {/* Premium upsell modal — opened from the Subscription row. */}
+      <PaywallScreen visible={paywallVisible} onClose={() => setPaywallVisible(false)} />
     </View>
   )
 }
@@ -124,11 +131,11 @@ function SectionLabel({ label, style }: { label: string; style?: object }) {
   )
 }
 
-function NavRow({ icon, tint, label, value, last, danger }: {
-  icon: React.ReactNode; tint: string[]; label: string; value?: string; last?: boolean; danger?: boolean
+function NavRow({ icon, tint, label, value, last, danger, onPress }: {
+  icon: React.ReactNode; tint: string[]; label: string; value?: string; last?: boolean; danger?: boolean; onPress?: () => void
 }) {
   return (
-    <Pressable style={({ pressed }) => [styles.navRow, !last && styles.navRowBorder, { opacity: pressed ? 0.9 : 1 }]}>
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.navRow, !last && styles.navRowBorder, { opacity: pressed ? 0.9 : 1 }]}>
       <View style={{ width: 32, height: 32, borderRadius: 12, overflow: 'hidden' }}>
         <LinearGradient colors={tint} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           {icon}

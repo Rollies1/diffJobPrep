@@ -40,6 +40,7 @@ export default function AppLayout() {
         <Tabs.Screen name="deck-create" options={{ href: null }} />
         <Tabs.Screen name="deck-start/[deckId]" options={{ href: null }} />
         <Tabs.Screen name="deck/[id]" options={{ href: null }} />
+
         <Tabs.Screen name="question/[id]" options={{ href: null }} />
         <Tabs.Screen name="mock-report" options={{ href: null }} />
         <Tabs.Screen name="onboarding" options={{ href: null }} />

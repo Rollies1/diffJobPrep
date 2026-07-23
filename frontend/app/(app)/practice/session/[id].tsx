@@ -12,6 +12,8 @@ import { useTheme } from '../../../../src/theme/ThemeProvider';
 import { PremiumButton } from '../../../../src/components/PremiumButton';
 import { PremiumCard } from '../../../../src/components/PremiumCard';
 import { springs } from '../../../../src/animations/presets';
+import CompletionCelebrationScreen from '../../../../src/screens/CompletionCelebrationScreen';
+import type { SessionResult } from '../../../../src/types/api';
 
 const { width } = Dimensions.get('window');
 
@@ -28,6 +30,7 @@ export default function PracticeSessionScreen() {
   } = usePracticeStore();
 
   const completeSession = useCompleteSession();
+  const [result, setResult] = useState<SessionResult | null>(null);
 
   useEffect(() => {
     if (session && !usePracticeStore.getState().sessionId) {
@@ -58,12 +61,30 @@ export default function PracticeSessionScreen() {
     );
   }
 
+  // Completion celebration — shown after the session is finalized.
+  if (result) {
+    return (
+      <CompletionCelebrationScreen
+        result={result}
+        deckTitle={(session as any).deckName ?? 'Practice session'}
+        onPracticeAgain={() => {
+          setResult(null);
+          router.replace('/(app)/practice');
+        }}
+        onHome={() => {
+          setResult(null);
+          router.replace('/(app)/dashboard');
+        }}
+      />
+    );
+  }
+
   const currentRef = session.questions[currentIndex];
 
   if (!currentRef) {
     return (
       <LinearGradient colors={[theme.background, theme.surface]} className="flex-1 justify-center items-center px-6">
-        <View 
+        <View
           className="w-24 h-24 rounded-full items-center justify-center mb-8 shadow-lg"
           style={{ backgroundColor: `${theme.semantic.info}20`, borderColor: theme.semantic.info, borderWidth: 1 }}
         >
@@ -79,11 +100,19 @@ export default function PracticeSessionScreen() {
           title="View Results"
           onPress={async () => {
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            const result = await completeSession.mutateAsync(safeSessionId!);
-            router.replace({
-              pathname: '/(app)/dashboard',
-              params: { result: JSON.stringify(result) },
-            });
+            const raw = await completeSession.mutateAsync(safeSessionId!) as any;
+            // Normalize the offline-complete payload into the full SessionResult
+            // shape expected by CompletionCelebrationScreen.
+            const sessionResult: SessionResult = {
+              sessionId: raw.sessionId,
+              score: raw.score,
+              totalQuestions: raw.totalQuestions,
+              answeredQuestions: raw.answeredQuestions,
+              correctAnswers: raw.correctAnswers ?? raw.answeredQuestions,
+              durationMs: raw.durationMs,
+              skillBreakdown: raw.skillBreakdown ?? {},
+            };
+            setResult(sessionResult);
           }}
           loading={completeSession.isPending}
           style={{ width: '100%' }}

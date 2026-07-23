@@ -13,5 +13,8 @@ export default function Dashboard() {
     }
     if (map[key]) router.push(map[key])
   }
-  return <DashboardScreen onTab={onTab} />
+
+  const onExplore = () => router.push('/(app)/library/explore')
+
+  return <DashboardScreen onTab={onTab} onExplore={onExplore} />
 }

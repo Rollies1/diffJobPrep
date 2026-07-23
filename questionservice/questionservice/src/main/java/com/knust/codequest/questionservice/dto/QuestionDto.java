@@ -17,8 +17,10 @@ public class QuestionDto {
     private String difficulty;
     private String hint;
     private String category;
+    /** Fine-grained sub-topic within the deck (e.g. "Hooks", "Closures"). */
+    private String subTopic;
     private java.util.List<String> options;
-    
+
     // User-specific state
     private boolean bookmarked;
     private boolean completed;

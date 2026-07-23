@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -17,6 +18,7 @@ import { usePremiumStatus } from '../../../src/hooks/usePremiumStatus';
 import { offlineDB } from '../../../src/offline/database';
 import { analytics } from '../../../src/analytics/posthog';
 import { useTheme } from '../../../src/theme/ThemeProvider';
+import PracticeSetupScreen from '../../../src/screens/PracticeSetupScreen';
 
 interface Question {
   id: string;
@@ -25,27 +27,32 @@ interface Question {
   difficulty: string;
 }
 
+type Phase = 'setup' | 'in_progress';
+
 export default function PracticeScreen() {
   const haptics = useHaptics();
   const theme = useTheme();
   const { tokens, consumeToken, maxTokens } = useSessionTokens();
   const { isPremium } = usePremiumStatus();
-  
+  const router = useRouter();
+  const { deckId } = useLocalSearchParams<{ deckId?: string }>();
+
+  const [phase, setPhase] = useState<Phase>('setup');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
-  const [sessionStartTime] = useState(Date.now());
+  const [sessionStartTime, setSessionStartTime] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [streak, setStreak] = useState(3); // Load from storage in production
   const [bestStreak] = useState(5);
-  
+  const [activeDeckId, setActiveDeckId] = useState<string>(deckId ?? 'behavioral_basics');
+  const [activeDeckTitle, setActiveDeckTitle] = useState<string>('Practice session');
+  const [mode, setMode] = useState<'QUICK' | 'MOCK'>('QUICK');
+
   const tokenWidth = useSharedValue(100);
 
-  const deckId = 'behavioral_basics'; // From route params
-
   useEffect(() => {
-    loadQuestions();
     analytics.screen('practice');
   }, []);
 
@@ -53,49 +60,91 @@ export default function PracticeScreen() {
     tokenWidth.value = withSpring((tokens / maxTokens) * 100, { damping: 15 });
   }, [tokens]);
 
-  const loadQuestions = async () => {
-    const qs = await offlineDB.getQuestionsForDeck(deckId);
-    setQuestions(qs);
-  };
-
   const tokenBarStyle = useAnimatedStyle(() => ({
     width: `${tokenWidth.value}%`,
   }));
 
+  // Kick off a session from the setup screen. `nextMode` selects QUICK vs MOCK;
+  // both flow into the same per-question loop, but MOCK is tracked for analytics.
+  const startSession = useCallback(
+    async (nextMode: 'QUICK' | 'MOCK') => {
+      const targetDeck = deckId ?? 'behavioral_basics';
+      const qs = await offlineDB.getQuestionsForDeck(targetDeck);
+      setMode(nextMode);
+      setActiveDeckId(targetDeck);
+      setActiveDeckTitle(targetDeck === 'behavioral_basics' ? 'Behavioral Basics' : 'Practice session');
+      setQuestions(qs);
+      setCurrentIndex(0);
+      setCorrectCount(0);
+      setShowSuccess(false);
+      setShowCompletion(false);
+      setSessionStartTime(Date.now());
+      setPhase('in_progress');
+      analytics.sessionStarted(targetDeck, false);
+    },
+    [deckId],
+  );
+
   const handleAnswer = useCallback(() => {
-    haptics.hapticSuccess(); // Use hapticSuccess instead of success
+    haptics.hapticSuccess();
     setShowSuccess(true);
-    setCorrectCount(c => c + 1);
-    
+    setCorrectCount((c) => c + 1);
+
     if (!isPremium) {
       consumeToken();
     }
-    
+
     const currentQuestion = questions[currentIndex];
     if (currentQuestion) {
-      offlineDB.updateProgress(currentQuestion.id, deckId, 'attempted');
+      offlineDB.updateProgress(currentQuestion.id, activeDeckId, 'attempted');
     }
-  }, [isPremium, consumeToken, questions, currentIndex]);
+  }, [isPremium, consumeToken, questions, currentIndex, activeDeckId, haptics]);
 
   const handleNext = useCallback(() => {
     setShowSuccess(false);
-    
+
     if (currentIndex >= questions.length - 1) {
       const duration = Math.floor((Date.now() - sessionStartTime) / 1000);
-      analytics.sessionCompleted(deckId, questions.length, duration);
+      analytics.sessionCompleted(activeDeckId, questions.length, duration);
+      setStreak((s) => s + 1);
       setShowCompletion(true);
       return;
     }
-    
-    setCurrentIndex(i => i + 1);
-  }, [currentIndex, questions.length, sessionStartTime]);
+
+    setCurrentIndex((i) => i + 1);
+  }, [currentIndex, questions.length, sessionStartTime, activeDeckId]);
 
   const handleContinue = useCallback(() => {
     setShowCompletion(false);
+    setPhase('setup');
     setCurrentIndex(0);
     setCorrectCount(0);
-    // Navigate back or reset
   }, []);
+
+  const handleSetupTab = useCallback(
+    (key: string) => {
+      if (key === 'practice') return;
+      const map: Record<string, string> = {
+        home: '/(app)/dashboard',
+        library: '/(app)/library',
+        tutor: '/(app)/tutor',
+        profile: '/(app)/profile',
+      };
+      if (map[key]) router.push(map[key]);
+    },
+    [router],
+  );
+
+  // ── Setup phase: PracticeSetupScreen ──────────────────────
+  if (phase === 'setup') {
+    return (
+      <PracticeSetupScreen
+        onStartQuick={() => startSession('QUICK')}
+        onStartMock={() => startSession('MOCK')}
+        onTab={handleSetupTab}
+      />
+    );
+  }
 
   const currentQuestion = questions[currentIndex];
 
@@ -103,13 +152,13 @@ export default function PracticeScreen() {
     return (
       <CompletionCelebration
         visible={true}
-        deckTitle="Behavioral Basics"
+        deckTitle={activeDeckTitle}
         questionsAnswered={questions.length}
         correctCount={correctCount}
-        streak={streak + 1}
+        streak={streak}
         bestStreak={bestStreak}
         onContinue={handleContinue}
-        onShare={() => analytics.capture('progress_shared', { deck_id: deckId })}
+        onShare={() => analytics.capture('progress_shared', { deck_id: activeDeckId, mode })}
       />
     );
   }
@@ -117,28 +166,30 @@ export default function PracticeScreen() {
   if (!currentQuestion) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+        <ActivityIndicator color={theme.semantic.info} style={{ marginTop: 64 }} />
         <Text style={[styles.loadingText, { color: theme.text.primary }]}>Loading questions...</Text>
       </SafeAreaView>
     );
   }
 
+  // ── In-progress phase: per-question loop ──────────────────
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable 
-          onPress={() => {/* Go back */}}
-          accessibilityLabel="Go back"
+        <Pressable
+          onPress={() => setPhase('setup')}
+          accessibilityLabel="Back to practice setup"
           accessibilityRole="button"
           hitSlop={12}
         >
           <Ionicons name="arrow-back" size={24} color={theme.text.primary} />
         </Pressable>
-        
+
         <View style={styles.headerCenter}>
           <StreakFlame streak={streak} bestStreak={bestStreak} size="sm" />
         </View>
-        
+
         <View style={styles.tokenContainer}>
           <Ionicons name="flash" size={14} color={theme.premium.gold} />
           <View style={styles.tokenTrack}>
@@ -148,10 +199,10 @@ export default function PracticeScreen() {
         </View>
       </View>
 
-      {/* Question Counter */}
+      {/* Mode badge + Question Counter */}
       <View style={styles.counterRow}>
         <Text style={[styles.counter, { color: theme.text.muted }]}>
-          Question {currentIndex + 1} of {questions.length}
+          {mode === 'MOCK' ? 'MOCK · ' : ''}Question {currentIndex + 1} of {questions.length}
         </Text>
         <View style={styles.difficultyBadge}>
           <Text style={[styles.difficultyText, { color: theme.semantic.info }]}>{currentQuestion.difficulty}</Text>
@@ -159,7 +210,7 @@ export default function PracticeScreen() {
       </View>
 
       {/* Question */}
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -210,10 +261,7 @@ export default function PracticeScreen() {
         )}
       </View>
 
-      <SuccessBurst
-        visible={showSuccess}
-        onComplete={() => console.log('Burst complete')}
-      />
+      <SuccessBurst visible={showSuccess} onComplete={() => undefined} />
     </SafeAreaView>
   );
 }
@@ -225,7 +273,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     textAlign: 'center',
-    marginTop: 64,
+    marginTop: 16,
   },
   header: {
     flexDirection: 'row',

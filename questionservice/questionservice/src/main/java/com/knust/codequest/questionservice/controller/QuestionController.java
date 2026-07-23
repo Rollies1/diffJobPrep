@@ -42,6 +42,11 @@ public class QuestionController {
         return ResponseEntity.ok(questionService.getDecks());
     }
 
+    @GetMapping("/decks/{deckId}")
+    public ResponseEntity<DeckDto> getDeck(@PathVariable String deckId) {
+        return ResponseEntity.ok(questionService.getDeck(UUID.fromString(deckId)));
+    }
+
     @GetMapping("/decks/{deckId}/questions")
     public ResponseEntity<PaginatedQuestionsResponse> getDeckQuestions(
             @PathVariable String deckId,
@@ -75,15 +80,21 @@ public class QuestionController {
     }
 
     /**
-     * GET /api/questions/random?categoryId=&difficulty=&count=
+     * GET /api/questions/random?categoryId=&deckId=&difficulty=&count=
      * Returns QuestionSlotDto[] (questionId/questionText/expectedKeywords) —
      * the exact shape practiceservice's QuestionServiceClient deserializes.
+     * If {@code deckId} is supplied the pool is scoped to that deck; otherwise
+     * the legacy categoryId-based behaviour applies.
      */
     @GetMapping("/random")
     public ResponseEntity<List<QuestionSlotDto>> getRandomQuestions(
             @RequestParam(required = false) UUID categoryId,
+            @RequestParam(required = false) UUID deckId,
             @RequestParam(required = false) String difficulty,
             @RequestParam(defaultValue = "5") int count) {
+        if (deckId != null) {
+            return ResponseEntity.ok(questionService.getRandomQuestionSlotsByDeck(deckId, difficulty, count));
+        }
         return ResponseEntity.ok(questionService.getRandomQuestionSlots(categoryId, difficulty, count));
     }
 

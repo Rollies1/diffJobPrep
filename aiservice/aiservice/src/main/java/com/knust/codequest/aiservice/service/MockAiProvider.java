@@ -15,7 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * Returns hardcoded/structured feedback without external API calls.
  */
 @Service
-@Profile("mock-ai | default")
+@Profile({"mock-ai", "default", "dev"})
 @Primary
 public class MockAiProvider implements AiProvider {
 

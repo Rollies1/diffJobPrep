@@ -31,6 +31,9 @@ gemini:
   api:
     key: ${GEMINI_API_KEY:gemini_mock_key}
 
+spring.ai.openai.api-key: ${OPENAI_API_KEY:sk-mock_key}
+spring.ai.openrouter.api-key: ${OPENROUTER_API_KEY:sk-or-mock_key}
+
 openrouter:
   api:
     key: ${OPENROUTER_API_KEY:sk-or-mock_key}

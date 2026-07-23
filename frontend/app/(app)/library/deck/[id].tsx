@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, Pressable } from 'react-native';
+import { View, Text, FlatList, Pressable, ActivityIndicator } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
@@ -9,41 +9,29 @@ import { usePremiumEntrance } from '../../../../src/hooks/usePremiumEntrance';
 import { PremiumCard } from '../../../../src/components/PremiumCard';
 import { SwipeableRow } from '../../../../src/components/SwipeableRow';
 import { PremiumButton } from '../../../../src/components/PremiumButton';
+import { useDeckDetail } from '../../../../src/hooks/queries/useDeckDetail';
 
-// ─── Mock Data ─────────────────────────────────────
-const QUESTIONS: Record<string, Array<{
-  id: string;
-  title: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  bookmarked: boolean;
-}>> = {
-  '1': [
-    { id: 'q1', title: 'Design a URL shortener like Bitly', difficulty: 'medium', bookmarked: false },
-    { id: 'q2', title: 'How would you scale a chat application to 1M users?', difficulty: 'hard', bookmarked: true },
-    { id: 'q3', title: 'Explain CAP theorem with examples', difficulty: 'easy', bookmarked: false },
-    { id: 'q4', title: 'Design a distributed cache', difficulty: 'hard', bookmarked: false },
-  ],
-  '2': [
-    { id: 'q5', title: 'Tell me about a time you failed', difficulty: 'medium', bookmarked: false },
-    { id: 'q6', title: 'How do you handle conflict in a team?', difficulty: 'easy', bookmarked: true },
-  ],
-  '3': [
-    { id: 'q7', title: 'Explain the React Native bridge', difficulty: 'medium', bookmarked: false },
-    { id: 'q8', title: 'Hermes vs JSC: trade-offs', difficulty: 'hard', bookmarked: false },
-  ],
-};
+// Deck metadata (title / color / category) is passed via route params from the
+// Library explore + deck list screens. Questions are fetched live from the
+// questionservice via useDeckDetail — no mock data.
 
-const DECK_META: Record<string, { title: string; color: string }> = {
-  '1': { title: 'System Design', color: '#00d4ff' },
-  '2': { title: 'Behavioral', color: '#7c3aed' },
-  '3': { title: 'React Native', color: '#f43f5e' },
-};
-
-const DIFFICULTY_COLORS = {
+const DIFFICULTY_COLORS: Record<string, string> = {
   easy: '#22c55e',
   medium: '#eab308',
   hard: '#f43f5e',
+  EASY: '#22c55e',
+  MEDIUM: '#eab308',
+  HARD: '#f43f5e',
 };
+
+interface DeckQuestion {
+  id: string;
+  title: string;
+  content?: string;
+  difficulty: string;
+  bookmarked: boolean;
+  completed?: boolean;
+}
 
 // ─── Components ────────────────────────────────────
 function QuestionItem({
@@ -51,7 +39,7 @@ function QuestionItem({
   index,
   onToggleBookmark,
 }: {
-  item: typeof QUESTIONS['1'][0];
+  item: DeckQuestion;
   index: number;
   onToggleBookmark: (id: string) => void;
 }) {
@@ -64,6 +52,8 @@ function QuestionItem({
     setBookmarked((v) => !v);
     onToggleBookmark(item.id);
   }, [item.id, onToggleBookmark]);
+
+  const diffColor = DIFFICULTY_COLORS[item.difficulty] ?? DIFFICULTY_COLORS.medium;
 
   return (
     <Animated.View style={style}>
@@ -80,12 +70,12 @@ function QuestionItem({
               <View className="flex-row items-center">
                 <View
                   className="px-2 py-0.5 rounded-full mr-2"
-                  style={{ backgroundColor: `${DIFFICULTY_COLORS[item.difficulty]}15` }}
+                  style={{ backgroundColor: `${diffColor}15` }}
                 >
                   <Text
                     className="text-xs font-bold uppercase"
                     style={{
-                      color: DIFFICULTY_COLORS[item.difficulty],
+                      color: diffColor,
                       fontFamily: 'Inter_600SemiBold',
                     }}
                   >
@@ -119,23 +109,31 @@ function QuestionItem({
 }
 
 export default function DeckDetailScreen() {
-  const { deckId } = useLocalSearchParams<{ deckId: string }>();
+  const params = useLocalSearchParams<{ id: string; title?: string; category?: string; color?: string }>();
   const theme = useTheme();
   const router = useRouter();
-  
-  // Safe extraction for TS
-  const safeDeckId = Array.isArray(deckId) ? deckId[0] : deckId;
-  const meta = safeDeckId ? DECK_META[safeDeckId] : null;
-  const questions = safeDeckId ? QUESTIONS[safeDeckId] : [];
-  
-  const finalMeta = meta ?? { title: 'Unknown Deck', color: theme.semantic.info };
+
+  const safeDeckId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const deckTitle = (Array.isArray(params.title) ? params.title[0] : params.title) ?? 'Deck';
+  const deckColor = (Array.isArray(params.color) ? params.color[0] : params.color) ?? theme.semantic.info;
+
+  // Live questions from the questionservice (with offline-first local fallback
+  // inside the hook). Replaces the previous hardcoded QUESTIONS mock.
+  const { data: questions, isLoading } = useDeckDetail(safeDeckId ?? '');
+  const deckQuestions: DeckQuestion[] = (questions ?? []).map((q) => ({
+    id: q.id,
+    title: q.title ?? 'Untitled question',
+    content: q.content,
+    difficulty: q.difficulty ?? 'medium',
+    bookmarked: !!q.bookmarked,
+    completed: !!q.completed,
+  }));
 
   const headerStyle = usePremiumEntrance(0);
   const listStyle = usePremiumEntrance(1);
 
   const handleToggleBookmark = useCallback((questionId: string) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    console.log('Bookmark toggled:', questionId);
     // Sync to SQLite + queue for backend sync (offline-first hook)
   }, []);
 
@@ -170,18 +168,18 @@ export default function DeckDetailScreen() {
               className="text-2xl font-bold"
               style={{ color: theme.text.primary, fontFamily: 'Inter_700Bold' }}
             >
-              {finalMeta.title}
+              {deckTitle}
             </Text>
             <Text
               className="text-sm"
               style={{ color: theme.text.secondary, fontFamily: 'Inter_400Regular' }}
             >
-              {questions?.length ?? 0} questions
+              {deckQuestions.length} questions
             </Text>
           </View>
           <View
             className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: finalMeta.color }}
+            style={{ backgroundColor: deckColor }}
           />
         </Animated.View>
 
@@ -194,29 +192,38 @@ export default function DeckDetailScreen() {
         </Animated.View>
 
         {/* Question List */}
-        <FlatList
-          data={questions}
-          keyExtractor={(q) => q.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 40 }}
-          renderItem={({ item, index }) => (
-            <QuestionItem
-              item={item}
-              index={index + 2}
-              onToggleBookmark={handleToggleBookmark}
-            />
-          )}
-          ListEmptyComponent={
-            <View className="mt-20 items-center">
-              <Text
-                className="text-base"
-                style={{ color: theme.text.muted, fontFamily: 'Inter_400Regular' }}
-              >
-                No questions in this deck yet.
-              </Text>
-            </View>
-          }
-        />
+        {isLoading ? (
+          <View className="mt-20 items-center">
+            <ActivityIndicator color={theme.semantic.info} />
+            <Text className="mt-3 text-sm" style={{ color: theme.text.muted, fontFamily: 'Inter_400Regular' }}>
+              Loading questions…
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={deckQuestions}
+            keyExtractor={(q) => q.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 40 }}
+            renderItem={({ item, index }) => (
+              <QuestionItem
+                item={item}
+                index={index + 2}
+                onToggleBookmark={handleToggleBookmark}
+              />
+            )}
+            ListEmptyComponent={
+              <View className="mt-20 items-center">
+                <Text className="text-base" style={{ color: theme.text.muted, fontFamily: 'Inter_400Regular' }}>
+                  No questions in this deck yet.
+                </Text>
+                <Text className="text-xs mt-1" style={{ color: theme.text.muted, fontFamily: 'Inter_400Regular' }}>
+                  Pull down to sync from the server.
+                </Text>
+              </View>
+            }
+          />
+        )}
       </View>
     </LinearGradient>
   );
