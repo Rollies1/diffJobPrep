@@ -1,6 +1,6 @@
 import { Platform } from 'react-native'
 import EventSource, { EventSourceEvent } from 'react-native-sse'
-import * as storage from './storage'
+import { storage } from './storage'
 
 const SSE_BASE = Platform.select({
   android: 'http://10.0.2.2:8089/api/ai/stream',
@@ -79,7 +79,7 @@ export class AiStreamClient {
   }
 
   private setupListeners(es: EventSource, callbacks: StreamCallbacks) {
-    es.addEventListener('message', (event: EventSourceEvent | MessageEvent) => {
+    es.addEventListener('message', (event: EventSourceEvent<any> | MessageEvent) => {
       try {
         const data = (event as any).data
         if (!data) return

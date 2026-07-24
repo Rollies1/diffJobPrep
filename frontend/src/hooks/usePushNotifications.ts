@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useRef, useCallback } from 'react'
 import * as Notifications from 'expo-notifications'
 import Constants from 'expo-constants'

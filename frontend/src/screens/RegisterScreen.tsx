@@ -66,7 +66,7 @@ export default function RegisterScreen({ onRegisterSuccess }: { onRegisterSucces
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
       {/* Gradient hero */}
-      <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+      <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
         <View style={styles.logoWrap}><JLogo size={56} variant="light" /></View>
         <Text style={styles.heroTitle}>Create your account</Text>
         <Text style={styles.heroSub}>Start prepping smarter — it's free.</Text>
@@ -98,7 +98,7 @@ export default function RegisterScreen({ onRegisterSuccess }: { onRegisterSucces
               {criteria.map((c) => (
                 <View key={c.key} style={styles.criteriaItem}>
                   <View style={[styles.criteriaDot, { backgroundColor: c.met ? undefined : '#e3e7ee' }]}>
-                    {c.met && <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.criteriaDotFill} />}
+                    {c.met && <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.criteriaDotFill} />}
                     {c.met ? <Check size={10} color="#fff" strokeWidth={3.5} style={{ position: 'absolute' }} /> : <View style={styles.criteriaDotInner} />}
                   </View>
                   <Text style={[styles.criteriaText, { color: c.met ? colors.ink : colors.textSubtle }]}>{c.label}</Text>
@@ -127,7 +127,7 @@ export default function RegisterScreen({ onRegisterSuccess }: { onRegisterSucces
           {['Software Engineer', 'Frontend Dev', 'Data Scientist', 'Designer', 'Product Manager'].map((r) => (
             <Pressable key={r} onPress={() => setRole(r)} style={[styles.chip, role === r && styles.chipActive]}>
               {role === r && (
-                <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+                <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
               )}
               <Text style={[styles.chipText, role === r && styles.chipTextActive]}>{r}</Text>
             </Pressable>
@@ -137,7 +137,7 @@ export default function RegisterScreen({ onRegisterSuccess }: { onRegisterSucces
         {/* Terms */}
         <Pressable style={styles.termsRow} onPress={() => setAgree((a) => !a)}>
           <View style={[styles.checkbox, agree && { overflow: 'hidden' }]}>
-            {agree && <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
+            {agree && <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
             {agree && <Check size={12} color="#fff" strokeWidth={3} style={{ position: 'relative' }} />}
           </View>
           <Text style={styles.termsText}>
@@ -153,7 +153,7 @@ export default function RegisterScreen({ onRegisterSuccess }: { onRegisterSucces
 
         {/* CTA */}
         <Pressable onPress={handleRegister} disabled={register.isPending} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
-          <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+          <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
             {register.isPending ? <ActivityIndicator color="#fff" size="small" /> : (
               <><Text style={styles.ctaText}>Create account</Text><ChevronRight size={16} color="#fff" /></>
             )}

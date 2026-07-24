@@ -82,7 +82,7 @@ export default function AchievementsScreen({ onTab }: { onTab?: (key: string) =>
             return (
               <View key={m.days} style={[styles.milestoneCard, !m.unlocked && { backgroundColor: 'rgba(255,255,255,0.7)' }]}>
                 {m.unlocked ? (
-                  <View style={styles.milestoneCheck}><LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}><Check size={10} color="#fff" strokeWidth={3.5} /></LinearGradient></View>
+                  <View style={styles.milestoneCheck}><LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', borderRadius: 8 }}><Check size={10} color="#fff" strokeWidth={3.5} /></LinearGradient></View>
                 ) : (
                   <View style={styles.milestoneLock}><Lock size={10} color={colors.textSubtle} /></View>
                 )}
@@ -157,7 +157,7 @@ function BadgeCard({ badge, index }: { badge: Badge; index: number }) {
     <View style={[styles.badgeCard, locked && { backgroundColor: 'rgba(255,255,255,0.6)' }]}>
       {badge.rare && (
         <View style={styles.rareBadge}>
-          <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+          <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
           <Text style={styles.rareText}>RARE</Text>
         </View>
       )}

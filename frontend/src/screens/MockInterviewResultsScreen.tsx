@@ -7,9 +7,9 @@ import { ProgressRing, GradientButton } from '../components/primitives'
 import { colors, gradients, shadows } from '../theme'
 
 const ROUNDS = [
-  { n: 1, name: 'Behavioral', type: 'Leadership & culture fit', score: 88, duration: '12:30', emoji: '🧭', tint: [colors.teal, colors.tealGreen] as string[], note: 'Strong STAR stories, great energy.' },
-  { n: 2, name: 'Coding', type: 'Algorithms & data structures', score: 79, duration: '18:45', emoji: '💻', tint: [colors.blue, colors.teal] as string[], note: 'Solved both, 1 suboptimal approach.' },
-  { n: 3, name: 'System Design', type: 'Scalability & architecture', score: 71, duration: '21:10', emoji: '🏗️', tint: [colors.gold, colors.amber] as string[], note: 'Solid basics, missed throughput calc.' },
+  { n: 1, name: 'Behavioral', type: 'Leadership & culture fit', score: 88, duration: '12:30', emoji: '🧭', tint: [colors.teal, colors.tealGreen] as any, note: 'Strong STAR stories, great energy.' },
+  { n: 2, name: 'Coding', type: 'Algorithms & data structures', score: 79, duration: '18:45', emoji: '💻', tint: [colors.blue, colors.teal] as any, note: 'Solved both, 1 suboptimal approach.' },
+  { n: 3, name: 'System Design', type: 'Scalability & architecture', score: 71, duration: '21:10', emoji: '🏗️', tint: [colors.gold, colors.amber] as any, note: 'Solid basics, missed throughput calc.' },
 ]
 
 const WAVEFORM = Array.from({ length: 48 }).map((_, i) => {
@@ -123,7 +123,7 @@ export default function MockInterviewResultsScreen({ onHome }: { onHome?: () => 
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 }}>
               <Pressable onPress={() => setPlaying((p) => !p)} style={styles.playBtn}>
-                <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                   {playing ? <Pause size={16} color="#fff" fill="#fff" /> : <Play size={16} color="#fff" fill="#fff" />}
                 </LinearGradient>
               </Pressable>
@@ -140,7 +140,7 @@ export default function MockInterviewResultsScreen({ onHome }: { onHome?: () => 
         <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
           <View style={styles.aiCard}>
             <View style={styles.aiHeader}>
-              <LinearGradient colors={gradients.blueTeal as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
+              <LinearGradient colors={gradients.blueTeal as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
                 <Sparkles size={16} color="#fff" />
                 <Text style={styles.aiHeaderText}>AI assessment</Text>
               </LinearGradient>
@@ -173,10 +173,10 @@ export default function MockInterviewResultsScreen({ onHome }: { onHome?: () => 
             </View>
             <View style={{ gap: 8, marginTop: 10 }}>
               {[
-                { name: 'Communication', value: 92, tint: [colors.teal, colors.tealGreen] as string[] },
-                { name: 'Problem solving', value: 81, tint: [colors.blue, colors.teal] as string[] },
-                { name: 'Technical depth', value: 74, tint: [colors.gold, colors.amber] as string[] },
-                { name: 'Composure', value: 68, tint: [colors.amber, colors.orange] as string[] },
+                { name: 'Communication', value: 92, tint: [colors.teal, colors.tealGreen] as any },
+                { name: 'Problem solving', value: 81, tint: [colors.blue, colors.teal] as any },
+                { name: 'Technical depth', value: 74, tint: [colors.gold, colors.amber] as any },
+                { name: 'Composure', value: 68, tint: [colors.amber, colors.orange] as any },
               ].map((s) => (
                 <View key={s.name}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -199,7 +199,7 @@ export default function MockInterviewResultsScreen({ onHome }: { onHome?: () => 
             <Text style={styles.homeText}>Home</Text>
           </Pressable>
           <Pressable style={{ flex: 1 }}>
-            <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+            <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
               <RotateCcw size={16} color="#fff" />
               <Text style={styles.ctaText}>New mock interview</Text>
             </LinearGradient>

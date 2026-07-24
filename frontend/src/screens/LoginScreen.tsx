@@ -33,7 +33,7 @@ export default function LoginScreen({ onLoginSuccess, onRegister }: { onLoginSuc
   return (
     <View style={styles.container}>
       {/* Gradient hero */}
-      <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+      <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
         <View style={styles.logoWrap}>
           <JLogo size={64} variant="light" />
         </View>
@@ -86,7 +86,7 @@ export default function LoginScreen({ onLoginSuccess, onRegister }: { onLoginSuc
 
         {/* Sign in button */}
         <Pressable onPress={handleLogin} disabled={login.isPending} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
-          <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+          <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
             {login.isPending ? (
               <ActivityIndicator color="#fff" size="small" />
             ) : (

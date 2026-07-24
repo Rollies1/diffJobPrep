@@ -132,7 +132,7 @@ export default function ProfileScreen() {
             )}
             {user?.isPremium && (
               <View style={styles.premiumPill}>
-                <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.premiumFill} />
+                <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.premiumFill} />
                 <Text style={styles.premiumText}>★ PREMIUM</Text>
               </View>
             )}
@@ -151,7 +151,7 @@ export default function ProfileScreen() {
             style={({ pressed }) => [{ opacity: pressed ? 0.95 : 1 }]}
           >
             <LinearGradient
-              colors={gradients.primary as string[]}
+              colors={gradients.primary as any}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.upgradeCard}
@@ -190,7 +190,7 @@ export default function ProfileScreen() {
                   <Text style={[styles.cancelText, { color: c.textMuted }]}>Cancel</Text>
                 </Pressable>
                 <Pressable onPress={handleSaveProfile} disabled={updateProfile.isPending} style={styles.saveBtnWrap}>
-                  <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.saveBtn}>
+                  <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.saveBtn}>
                     {updateProfile.isPending ? <ActivityIndicator color="#fff" size="small" /> : <><Check size={14} color="#fff" /><Text style={styles.saveBtnText}>Save</Text></>}
                   </LinearGradient>
                 </Pressable>
@@ -222,7 +222,7 @@ export default function ProfileScreen() {
             <PwdInput placeholder="Current password" value={currentPwd} onChangeText={setCurrentPwd} color={c} />
             <PwdInput placeholder="New password (min 8 chars)" value={newPwd} onChangeText={setNewPwd} color={c} />
             <Pressable onPress={handleChangePassword} disabled={changePassword.isPending} style={styles.pwdSaveWrap}>
-              <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.pwdSaveBtn}>
+              <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.pwdSaveBtn}>
                 {changePassword.isPending ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Update password</Text>}
               </LinearGradient>
             </Pressable>
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
   profileEmail: { fontSize: 12, marginTop: 2 },
   profileUsername: { fontSize: 12, fontWeight: '700', marginTop: 2 },
   premiumPill: { flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, marginTop: 6, overflow: 'hidden', alignSelf: 'flex-start' },
-  premiumFill: { position: 'absolute', inset: 0 },
+  premiumFill: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   premiumText: { fontSize: 9, fontWeight: '800', color: '#fff', position: 'relative' },
   editBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   sectionHeader: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 8 },

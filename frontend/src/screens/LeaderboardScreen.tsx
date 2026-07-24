@@ -97,7 +97,7 @@ export default function LeaderboardScreen({ onTab }: { onTab?: (key: string) => 
 
       {/* Sticky your-rank card */}
       <View style={styles.stickyWrap}>
-        <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.stickyCard}>
+        <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.stickyCard}>
           <View style={styles.stickyRank}><Text style={styles.stickyRankText}>11</Text></View>
           <Avatar name="Ama Okafor" size={36} />
           <View style={{ flex: 1 }}>
@@ -122,7 +122,7 @@ function PodiumCard({ ranker, place, height }: { ranker: Ranker; place: 1 | 2 | 
       <Text style={{ fontSize: 24 }}>{medal}</Text>
       <View style={{ width: size, height: size, borderRadius: size / 2, padding: 2.5, marginTop: 4, overflow: 'hidden' }}>
         {place === 1 ? (
-          <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, borderRadius: size / 2, padding: 2 }}>
+          <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, borderRadius: size / 2, padding: 2 }}>
             <View style={{ flex: 1, borderRadius: size / 2, backgroundColor: '#fff', padding: 2 }}>
               <Avatar name={ranker.name} size={size - 12} />
             </View>
@@ -138,7 +138,7 @@ function PodiumCard({ ranker, place, height }: { ranker: Ranker; place: 1 | 2 | 
       <Text style={styles.podiumName} numberOfLines={1}>{ranker.name.split(' ')[0]}</Text>
       <Text style={styles.podiumScore}>{ranker.score.toLocaleString()}</Text>
       <View style={{ width: '100%', height: place === 1 ? 28 : 20, borderRadius: 8, overflow: 'hidden', marginTop: 6 }}>
-        <LinearGradient colors={pedColors as string[]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 4 }}>
+        <LinearGradient colors={pedColors as any} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 4 }}>
           {place === 1 && <Crown size={12} color="#fff" />}
           <Text style={styles.podiumRank}>{place}</Text>
         </LinearGradient>

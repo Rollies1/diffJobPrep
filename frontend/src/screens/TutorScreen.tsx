@@ -75,7 +75,7 @@ export default function TutorScreen({ onBack }: { onBack?: () => void }) {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
+      <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 12, paddingVertical: 8 }}>
           {onBack && (
             <Pressable style={styles.headerBtn} onPress={onBack}><ChevronLeft size={20} color="#fff" /></Pressable>

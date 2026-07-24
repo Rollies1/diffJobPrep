@@ -3,7 +3,10 @@
  * useAppearanceStore (persisted via SecureStore). Screens that previously
  * imported the static `colors` object can call `useThemeColors()` instead
  * to get a palette that reacts to the user's light/dark preference.
+ *
+ * `system` mode follows the device color scheme (react-native useColorScheme).
  */
+import { useColorScheme } from 'react-native'
 import { useAppearanceStore } from '../stores/useAppearanceStore'
 import { colors as lightColors } from './index'
 
@@ -40,8 +43,9 @@ export type ThemeColors = typeof lightColors & {
 /** Hook returning the active color palette based on the stored preference. */
 export function useThemeColors(): ThemeColors {
   const mode = useAppearanceStore((s) => s.mode)
-  // 'system' falls back to light for now (React Native useColorScheme would
-  // be wired here in a fuller implementation; the explicit light/dark toggle
-  // is what the user controls from the profile screen).
-  return mode === 'dark' ? (darkColors as ThemeColors) : (lightColors as ThemeColors)
+  const systemScheme = useColorScheme()
+  // Resolve the effective mode: explicit light/dark wins, otherwise follow
+  // the device color scheme (dark → dark palette, everything else → light).
+  const isDark = mode === 'dark' || (mode === 'system' && systemScheme === 'dark')
+  return isDark ? (darkColors as ThemeColors) : (lightColors as ThemeColors)
 }

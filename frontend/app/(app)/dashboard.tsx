@@ -15,6 +15,7 @@ export default function Dashboard() {
   }
 
   const onExplore = () => router.push('/(app)/library/explore')
+  const onOpenNotifications = () => router.push('/(app)/notifications')
 
-  return <DashboardScreen onTab={onTab} onExplore={onExplore} />
+  return <DashboardScreen onTab={onTab} onExplore={onExplore} onOpenNotifications={onOpenNotifications} />
 }

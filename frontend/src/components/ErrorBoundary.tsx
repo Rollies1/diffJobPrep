@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react'
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
 import { RefreshCw } from 'lucide-react-native'

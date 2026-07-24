@@ -94,8 +94,8 @@ export const SmartDeckCarousel: React.FC = () => {
             rec={rec}
             index={index}
             scrollX={scrollX}
-            onPress={() => haptics.medium()}
-            colors={colors}
+            onPress={() => haptics.hapticSelection()}
+            theme={theme}
             getReasonColor={getReasonColor}
             getReasonIcon={getReasonIcon}
             getReasonLabel={getReasonLabel}
@@ -111,11 +111,11 @@ const RecommendationCard: React.FC<{
   index: number;
   scrollX: Animated.SharedValue<number>;
   onPress: () => void;
-  colors: any;
+  theme: any;
   getReasonColor: (r: any) => string;
   getReasonIcon: (r: any) => string;
   getReasonLabel: (r: any) => string;
-}> = ({ rec, index, scrollX, onPress, colors, getReasonColor, getReasonIcon, getReasonLabel }) => {
+}> = ({ rec, index, scrollX, onPress, theme, getReasonColor, getReasonIcon, getReasonLabel }) => {
   const color = getReasonColor(rec.reason);
 
   const animatedStyle = useAnimatedStyle(() => {

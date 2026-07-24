@@ -121,7 +121,7 @@ export default function CompletionCelebrationScreen({
             <Text style={styles.homeText}>Home</Text>
           </Pressable>
           <Pressable onPress={onPracticeAgain} style={({ pressed }) => [{ flex: 1, opacity: pressed ? 0.9 : 1 }]}>
-            <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+            <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
               <RotateCcw size={16} color="#fff" />
               <Text style={styles.ctaText}>Practice again</Text>
             </LinearGradient>

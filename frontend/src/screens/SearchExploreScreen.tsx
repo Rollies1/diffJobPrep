@@ -11,12 +11,12 @@ import { colors, gradients, shadows } from '../theme'
 const RECENT = ['system design cache', 'two pointers', 'behavioral leadership', 'react hooks']
 
 const TRENDING = [
-  { tag: 'SystemDesign', count: '2.4k questions', emoji: '🏗️', tint: [colors.gold, colors.amber] as string[] },
-  { tag: 'FAANG 2025', count: '1.8k questions', emoji: '🎯', tint: [colors.blue, colors.teal] as string[] },
-  { tag: 'Behavioral', count: '960 questions', emoji: '🧭', tint: [colors.teal, colors.tealGreen] as string[] },
-  { tag: 'Frontend', count: '1.2k questions', emoji: '⚛️', tint: [colors.orange, '#f43f5e'] as string[] },
-  { tag: 'SQL', count: '740 questions', emoji: '🗄️', tint: [colors.blue, '#8b5cf6'] as string[] },
-  { tag: 'AI/ML', count: '520 questions', emoji: '🤖', tint: ['#8b5cf6', colors.blue] as string[] },
+  { tag: 'SystemDesign', count: '2.4k questions', emoji: '🏗️', tint: [colors.gold, colors.amber] as any },
+  { tag: 'FAANG 2025', count: '1.8k questions', emoji: '🎯', tint: [colors.blue, colors.teal] as any },
+  { tag: 'Behavioral', count: '960 questions', emoji: '🧭', tint: [colors.teal, colors.tealGreen] as any },
+  { tag: 'Frontend', count: '1.2k questions', emoji: '⚛️', tint: [colors.orange, '#f43f5e'] as any },
+  { tag: 'SQL', count: '740 questions', emoji: '🗄️', tint: [colors.blue, '#8b5cf6'] as any },
+  { tag: 'AI/ML', count: '520 questions', emoji: '🤖', tint: ['#8b5cf6', colors.blue] as any },
 ]
 
 export default function SearchExploreScreen({ onTab }: { onTab?: (key: string) => void }) {
@@ -25,7 +25,7 @@ export default function SearchExploreScreen({ onTab }: { onTab?: (key: string) =
   const { data: decks } = useDecks()
 
   const matchedDecks = hasQuery
-    ? (decks ?? []).filter((d) => d.title.toLowerCase().includes(query.toLowerCase()) || d.category.toLowerCase().includes(query.toLowerCase()))
+    ? (decks ?? []).filter((d: any) => d.title.toLowerCase().includes(query.toLowerCase()) || d.category.toLowerCase().includes(query.toLowerCase()))
     : []
 
   return (
@@ -82,7 +82,7 @@ export default function SearchExploreScreen({ onTab }: { onTab?: (key: string) =
             {/* Suggested decks */}
             <SectionLabel icon={<Sparkles size={14} color={colors.blue} />} label="Suggested decks" style={{ marginTop: 20 }} />
             <View style={{ paddingHorizontal: 16, gap: 8, marginTop: 8 }}>
-              {(decks ?? []).slice(0, 3).map((d, i) => (
+              {(decks ?? []).slice(0, 3).map((d: any, i: any) => (
                 <View key={d.id} style={styles.suggestedRow}>
                   <View style={{ width: 40, height: 40, borderRadius: 12, overflow: 'hidden' }}>
                     <LinearGradient colors={[colors.blue, colors.teal]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -113,7 +113,7 @@ export default function SearchExploreScreen({ onTab }: { onTab?: (key: string) =
                     <Text style={styles.personRole}>{p.handle} · {p.role}</Text>
                   </View>
                   <Pressable style={styles.followBtn}>
-                    <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                       <Text style={styles.followText}>Follow</Text>
                     </LinearGradient>
                   </Pressable>
@@ -128,7 +128,7 @@ export default function SearchExploreScreen({ onTab }: { onTab?: (key: string) =
             <Text style={styles.resultsSectionLabel}>Decks</Text>
             {matchedDecks.length > 0 ? (
               <View style={{ gap: 8 }}>
-                {matchedDecks.map((d) => (
+                {matchedDecks.map((d: any) => (
                   <View key={d.id} style={styles.resultRow}>
                     <View style={{ width: 40, height: 40, borderRadius: 12, overflow: 'hidden' }}>
                       <LinearGradient colors={[colors.blue, colors.teal]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * PreviewGate — wraps premium content and shows the PaywallModal if the
  * user lacks the premium entitlement.

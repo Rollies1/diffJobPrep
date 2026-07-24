@@ -13,9 +13,9 @@ const STEPS = [
 ]
 
 const FEATURES = [
-  { icon: Target, label: 'Personalized question decks', tint: [colors.blue, colors.teal] as string[] },
-  { icon: Bot, label: 'AI tutor available 24/7', tint: [colors.teal, colors.tealGreen] as string[] },
-  { icon: TrendingUp, label: 'Detailed progress analytics', tint: [colors.gold, colors.orange] as string[] },
+  { icon: Target, label: 'Personalized question decks', tint: [colors.blue, colors.teal] as any },
+  { icon: Bot, label: 'AI tutor available 24/7', tint: [colors.teal, colors.tealGreen] as any },
+  { icon: TrendingUp, label: 'Detailed progress analytics', tint: [colors.gold, colors.orange] as any },
 ]
 
 export default function OnboardingScreen({ onComplete }: { onComplete?: () => void }) {
@@ -30,7 +30,7 @@ export default function OnboardingScreen({ onComplete }: { onComplete?: () => vo
   return (
     <View style={styles.container}>
       {/* Top gradient */}
-      <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
+      <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
         <View style={styles.heroTop}>
           <JWordmark size={22} tone="light" />
           <Pressable onPress={onComplete} style={styles.skipBtn}>
@@ -39,7 +39,7 @@ export default function OnboardingScreen({ onComplete }: { onComplete?: () => vo
         </View>
         <View style={styles.illustrationWrap}>
           <View style={styles.illustrationCircle}>
-            <Text style={styles.illustrationEmoji}>{current.emoji}</Text>
+            <Text style={styles.illustrationEmoji}>{current?.emoji}</Text>
           </View>
         </View>
       </LinearGradient>
@@ -50,12 +50,12 @@ export default function OnboardingScreen({ onComplete }: { onComplete?: () => vo
         <View style={styles.dotsRow}>
           {STEPS.map((_, i) => (
             <View key={i} style={[styles.dot, i === step ? styles.dotActive : null, i === step && { overflow: 'hidden' }]}>
-              {i === step && <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
+              {i === step && <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
             </View>
           ))}
         </View>
 
-        <Text style={styles.title}>{current.title}</Text>
+        <Text style={styles.title}>{current?.title}</Text>
         <Text style={styles.desc}>{current.desc}</Text>
 
         {/* Feature cards */}
@@ -79,7 +79,7 @@ export default function OnboardingScreen({ onComplete }: { onComplete?: () => vo
         {/* CTA */}
         <View style={{ marginTop: 'auto', paddingTop: 24 }}>
           <Pressable onPress={next} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
-            <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+            <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
               <Text style={styles.ctaText}>{step < STEPS.length - 1 ? 'Continue' : 'Get started'}</Text>
               <ChevronRight size={16} color="#fff" />
             </LinearGradient>

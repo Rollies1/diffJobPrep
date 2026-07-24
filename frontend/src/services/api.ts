@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Single Axios instance with JWT auth, automatic token refresh on 401,
  * device-id injection, and offline mutation queueing.

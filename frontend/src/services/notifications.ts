@@ -1,5 +1,5 @@
 import { api } from './api'
-import * as storage from './storage'
+import { storage } from './storage'
 import { Platform } from 'react-native'
 
 export interface RegisterDeviceRequest {

@@ -66,7 +66,7 @@ export default function LibraryDeckScreen({
   return (
     <View style={styles.container}>
       {/* Banner */}
-      <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.banner}>
+      <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.banner}>
         <ScreenHeader
           title=""
           onBack={onBack}
@@ -136,7 +136,7 @@ export default function LibraryDeckScreen({
       {/* Sticky CTA */}
       <View style={styles.stickyCta}>
         <Pressable onPress={onStartPractice} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
-          <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+          <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
             <Text style={styles.ctaText}>Continue practice</Text>
             <ChevronRight size={16} color="#fff" />
           </LinearGradient>
@@ -150,7 +150,7 @@ function FilterChip({ children, active }: { children: React.ReactNode; active?: 
   if (active) {
     return (
       <View style={{ borderRadius: 999, overflow: 'hidden', ...shadows.soft }}>
-        <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 12, paddingVertical: 6 }}>
+        <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 12, paddingVertical: 6 }}>
           <Text style={{ fontSize: 12, fontWeight: '700', color: '#fff' }}>{children}</Text>
         </LinearGradient>
       </View>

@@ -19,6 +19,7 @@ import Animated, {
   useAnimatedProps,
 } from 'react-native-reanimated'
 import { colors, gradients, shadows } from '../theme'
+import { useThemeColors } from '../theme/useThemeColors'
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient'
 
 /* ── GradientBackground ──────────────────────────────────────── */
@@ -35,7 +36,7 @@ export function GradientBackground({
   const stops =
     variant === 'warm' ? gradients.warm : variant === 'blueTeal' ? gradients.blueTeal : gradients.primary
   return (
-    <ExpoLinearGradient colors={stops as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[{ flex: 1 }, style]}>
+    <ExpoLinearGradient colors={stops as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[{ flex: 1 }, style]}>
       {children}
     </ExpoLinearGradient>
   )
@@ -142,7 +143,7 @@ export function Avatar({
   if (ring) {
     return (
       <View style={[{ padding: 2, borderRadius: size, overflow: 'hidden' }, style]}>
-        <ExpoLinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: size, padding: 2 }}>
+        <ExpoLinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ borderRadius: size, padding: 2 }}>
           <View style={{ borderRadius: size, backgroundColor: '#fff', padding: 2 }}>
             <AvatarInner initials={initials} size={size - 8} />
           </View>
@@ -156,7 +157,7 @@ export function Avatar({
 function AvatarInner({ initials, size, style }: { initials: string; size: number; style?: ViewStyle }) {
   return (
     <View style={[{ width: size, height: size, borderRadius: size, overflow: 'hidden' }, style]}>
-      <ExpoLinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <ExpoLinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Text style={{ color: '#fff', fontSize: size * 0.38, fontWeight: '800' }}>{initials}</Text>
       </ExpoLinearGradient>
     </View>
@@ -223,7 +224,7 @@ export function GradientButton({
   return (
     <Pressable onPress={onPress} disabled={disabled} style={({ pressed }) => [{ opacity: disabled ? 0.5 : pressed ? 0.9 : 1 }, style]}>
       <ExpoLinearGradient
-        colors={stops as string[]}
+        colors={stops as any}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
@@ -257,6 +258,7 @@ export function Chip({
   onPress?: () => void
   style?: ViewStyle
 }) {
+  const c = useThemeColors()
   return (
     <Pressable
       onPress={onPress}
@@ -272,16 +274,16 @@ export function Chip({
         },
         active
           ? { ...shadows.soft }
-          : { backgroundColor: '#fff', borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)' },
+          : { backgroundColor: c.surface, borderWidth: 1, borderColor: c.border },
         style,
       ]}
     >
       {active && (
-        <View style={{ position: 'absolute', inset: 0, borderRadius: 999, overflow: 'hidden' }}>
-          <ExpoLinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1 }} />
+        <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: 999, overflow: 'hidden' }}>
+          <ExpoLinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1 }} />
         </View>
       )}
-      <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : colors.textMuted, position: 'relative' }}>
+      <Text style={{ fontSize: 12, fontWeight: '600', color: active ? '#fff' : c.textMuted, position: 'relative' }}>
         {children}
       </Text>
     </Pressable>
@@ -291,9 +293,10 @@ export function Chip({
 /* ── SectionTitle ────────────────────────────────────────────── */
 
 export function SectionTitle({ title, action }: { title: string; action?: React.ReactNode }) {
+  const c = useThemeColors()
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
-      <Text style={{ fontSize: 15, fontWeight: '700', color: colors.ink }}>{title}</Text>
+      <Text style={{ fontSize: 15, fontWeight: '700', color: c.ink }}>{title}</Text>
       {action}
     </View>
   )
@@ -314,6 +317,7 @@ export function StatTile({
   accent?: 'blue' | 'teal' | 'gold' | 'orange' | 'rose' | 'violet'
   icon?: React.ReactNode
 }) {
+  const c = useThemeColors()
   const tints: Record<string, string[]> = {
     blue: [colors.blue, colors.teal],
     teal: [colors.teal, colors.tealGreen],
@@ -323,9 +327,9 @@ export function StatTile({
     violet: [colors.blue, '#8b5cf6'],
   }
   return (
-    <View style={[styles.card, { padding: 12 }]}>
+    <View style={[styles.card, { padding: 12, backgroundColor: c.surface }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textSubtle, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: c.textSubtle, textTransform: 'uppercase', letterSpacing: 0.5 }}>
           {label}
         </Text>
         {icon && (
@@ -336,8 +340,8 @@ export function StatTile({
           </View>
         )}
       </View>
-      <Text style={{ fontSize: 22, fontWeight: '800', color: colors.ink, marginTop: 4 }}>{value}</Text>
-      {sub && <Text style={{ fontSize: 11, fontWeight: '500', color: colors.teal, marginTop: 4 }}>{sub}</Text>}
+      <Text style={{ fontSize: 22, fontWeight: '800', color: c.ink, marginTop: 4 }}>{value}</Text>
+      {sub && <Text style={{ fontSize: 11, fontWeight: '500', color: c.teal, marginTop: 4 }}>{sub}</Text>}
     </View>
   )
 }
@@ -345,10 +349,11 @@ export function StatTile({
 /* ── DifficultyBadge ─────────────────────────────────────────── */
 
 export function DifficultyBadge({ level }: { level: 'Easy' | 'Medium' | 'Hard' }) {
+  const c = useThemeColors()
   const map = {
-    Easy: { bg: colors.successBg, text: colors.success },
-    Medium: { bg: colors.warningBg, text: colors.warning },
-    Hard: { bg: colors.dangerBg, text: colors.danger },
+    Easy: { bg: c.successBg, text: c.success },
+    Medium: { bg: c.warningBg, text: c.warning },
+    Hard: { bg: c.dangerBg, text: c.danger },
   }
   const s = map[level]
   return (
@@ -363,7 +368,7 @@ export function DifficultyBadge({ level }: { level: 'Easy' | 'Medium' | 'Hard' }
 export function PremiumBadge({ style }: { style?: ViewStyle }) {
   return (
     <View style={[{ flexDirection: 'row', alignItems: 'center', gap: 4, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2, overflow: 'hidden' }, style]}>
-      <ExpoLinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', inset: 0 }} />
+      <ExpoLinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
       <Text style={{ fontSize: 10, fontWeight: '800', color: '#fff', position: 'relative' }}>★ PREMIUM</Text>
     </View>
   )
@@ -372,6 +377,7 @@ export function PremiumBadge({ style }: { style?: ViewStyle }) {
 /* ── StreakFlame ─────────────────────────────────────────────── */
 
 export function StreakFlame({ days = 7 }: { days?: number }) {
+  const c = useThemeColors()
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
       <View style={{ width: 28, height: 28, borderRadius: 14, overflow: 'hidden' }}>
@@ -379,7 +385,7 @@ export function StreakFlame({ days = 7 }: { days?: number }) {
           <Text style={{ fontSize: 14 }}>🔥</Text>
         </ExpoLinearGradient>
       </View>
-      <Text style={{ fontSize: 14, fontWeight: '700', color: colors.ink }}>{days}</Text>
+      <Text style={{ fontSize: 14, fontWeight: '700', color: c.ink }}>{days}</Text>
     </View>
   )
 }
@@ -397,6 +403,7 @@ export function ScreenHeader({
   onBack?: () => void
   right?: React.ReactNode
 }) {
+  const c = useThemeColors()
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingBottom: 8, paddingTop: 4 }}>
       {onBack && (
@@ -406,19 +413,19 @@ export function ScreenHeader({
             width: 36,
             height: 36,
             borderRadius: 18,
-            backgroundColor: 'rgba(255,255,255,0.8)',
+            backgroundColor: c.surface,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: pressed ? 0.8 : 1,
             ...shadows.card,
           })}
         >
-          <Text style={{ fontSize: 20, color: colors.ink }}>‹</Text>
+          <Text style={{ fontSize: 20, color: c.ink }}>‹</Text>
         </Pressable>
       )}
       <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 17, fontWeight: '700', color: colors.ink }} numberOfLines={1}>{title}</Text>
-        {subtitle && <Text style={{ fontSize: 12, color: colors.textMuted }} numberOfLines={1}>{subtitle}</Text>}
+        <Text style={{ fontSize: 17, fontWeight: '700', color: c.ink }} numberOfLines={1}>{title}</Text>
+        {subtitle && <Text style={{ fontSize: 12, color: c.textMuted }} numberOfLines={1}>{subtitle}</Text>}
       </View>
       {right}
     </View>
@@ -434,6 +441,7 @@ export function MiniBarChart({
   data: { label: string; value: number; highlight?: boolean }[]
   height?: number
 }) {
+  const c = useThemeColors()
   const max = Math.max(...data.map((d) => d.value), 1)
   const labelH = 18
   const chartH = height - labelH - 6
@@ -448,16 +456,16 @@ export function MiniBarChart({
                 height: Math.max(6, (d.value / max) * chartH),
                 borderTopLeftRadius: 8,
                 borderTopRightRadius: 8,
-                backgroundColor: d.highlight ? undefined : '#eef2f7',
+                backgroundColor: d.highlight ? undefined : c.divider,
                 overflow: 'hidden',
               }}
             >
               {d.highlight && (
-                <ExpoLinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }} />
+                <ExpoLinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} style={{ flex: 1 }} />
               )}
             </View>
           </View>
-          <Text style={{ fontSize: 10, fontWeight: '600', color: colors.textSubtle }}>{d.label}</Text>
+          <Text style={{ fontSize: 10, fontWeight: '600', color: c.textSubtle }}>{d.label}</Text>
         </View>
       ))}
     </View>
@@ -470,7 +478,7 @@ export function StoryRing({ children, size = 64, seen = false }: { children: Rea
   return (
     <View style={{ width: size, height: size, borderRadius: size, padding: 2.5, backgroundColor: seen ? '#e3e7ee' : undefined, overflow: 'hidden' }}>
       {!seen && (
-        <ExpoLinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', inset: 0, borderRadius: size }} />
+        <ExpoLinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: size }} />
       )}
       <View style={{ flex: 1, borderRadius: size, backgroundColor: '#fff', padding: 2 }}>{children}</View>
     </View>

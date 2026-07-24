@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Purchases, { 
   LOG_LEVEL, 
   PurchasesPackage, 

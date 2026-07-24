@@ -65,7 +65,7 @@ export default function NotificationsScreen({ onTab }: { onTab?: (key: string) =
               onPress={() => setFilter(f.key)}
               style={({ pressed }) => [styles.chip, filter === f.key && { overflow: 'hidden', ...shadows.soft }, { opacity: pressed ? 0.9 : 1 }]}
             >
-              {filter === f.key && <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
+              {filter === f.key && <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
               <Text style={[styles.chipText, filter === f.key && { color: '#fff' }]}>{f.label}</Text>
               <View style={[styles.chipCount, filter === f.key && { backgroundColor: 'rgba(255,255,255,0.25)' }]}>
                 <Text style={[styles.chipCountText, filter === f.key && { color: '#fff' }]}>{f.count}</Text>

@@ -163,7 +163,7 @@ function ToggleRow({ icon, tint, label, desc, on, onToggle, last }: {
         {desc && <Text style={styles.navDesc}>{desc}</Text>}
       </View>
       <Pressable onPress={onToggle} style={{ width: 44, height: 24, borderRadius: 12, overflow: 'hidden', justifyContent: 'center' }}>
-        {on && <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
+        {on && <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
         {!on && <View style={[StyleSheet.absoluteFill, { backgroundColor: '#e3e7ee' }]} />}
         <View style={[styles.toggleKnob, on ? { right: 2 } : { left: 2 }]} />
       </Pressable>

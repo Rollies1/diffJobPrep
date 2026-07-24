@@ -60,17 +60,17 @@ export default function QuestionDetailScreen({
         {/* Model answer */}
         <View style={styles.modelCard}>
           <View style={styles.modelHeader}>
-            <LinearGradient colors={gradients.blueTeal as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
+            <LinearGradient colors={gradients.blueTeal as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
               <Lightbulb size={16} color="#fff" />
               <Text style={styles.modelHeaderText}>Model answer</Text>
               <Sparkles size={16} color="#fff" style={{ marginLeft: 'auto' }} />
             </LinearGradient>
           </View>
           <View style={{ padding: 16 }}>
-            {(q.options.length > 0 ? q.options : ['Clarify requirements', 'Core approach', 'Trade-offs', 'Optimization']).map((step, i) => (
+            {(q.options.length > 0 ? q.options : ['Clarify requirements', 'Core approach', 'Trade-offs', 'Optimization']).map((step: any, i: any) => (
               <View key={i} style={{ flexDirection: 'row', gap: 10, marginBottom: 10 }}>
                 <View style={styles.stepNum}>
-                  <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                  <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                     <Text style={styles.stepNumText}>{i + 1}</Text>
                   </LinearGradient>
                 </View>
@@ -98,7 +98,7 @@ export default function QuestionDetailScreen({
           <View style={styles.notesBody}>
             <View style={styles.noteItem}>
               <Text style={styles.noteDate}>Yesterday</Text>
-              <Text style={styles.noteText}>Remember to mention prioritization — push > SMS > email. Don't forget idempotency keys!</Text>
+              <Text style={styles.noteText}>Remember to mention prioritization — push &gt; SMS &gt; email. Don't forget idempotency keys!</Text>
             </View>
             <Pressable style={styles.addNoteBtn}>
               <Text style={styles.addNoteText}>+ Add a note</Text>
@@ -120,7 +120,7 @@ export default function QuestionDetailScreen({
             <View key={i} style={{ flexDirection: 'row', gap: 12, paddingBottom: i < arr.length - 1 ? 16 : 0 }}>
               {i < arr.length - 1 && <View style={styles.timelineLine} />}
               <View style={styles.timelineDot}>
-                <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={styles.timelineScore}>{t.score}</Text>
                 </LinearGradient>
               </View>
@@ -150,7 +150,7 @@ export default function QuestionDetailScreen({
       {/* Sticky CTA */}
       <View style={styles.stickyCta}>
         <Pressable onPress={onPractice} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
-          <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+          <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
             <Text style={styles.ctaText}>Practice this question</Text>
           </LinearGradient>
         </Pressable>

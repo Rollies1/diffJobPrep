@@ -12,6 +12,15 @@ import * as Haptics from 'expo-haptics'
  * keep interacting with the current screen — this is the "notification"
  * that appears BEFORE the full-screen OfflineScreen takes over (see
  * <OfflineDetector />). On reconnect it slides back up with a success haptic.
+ *
+ * IMPORTANT (Task ID 3 — offline behavior): the banner stays visible for
+ * as long as the device is offline, INCLUDING the entire <OfflineDetector />
+ * grace window (default 8s). It does NOT auto-dismiss during the grace
+ * period — it only slides away once NetInfo flips `isOnline` back to true.
+ * That guarantees the banner is the very first thing the user sees on a
+ * connectivity drop, and a brief blip (< 8s) only ever flashes the banner,
+ * never the full screen. The banner is a solid rose color by design (it is
+ * an alert), so it intentionally does NOT participate in dark-mode theming.
  */
 export const NetworkStatus: React.FC = () => {
   const { isOnline } = useNetworkStatus()

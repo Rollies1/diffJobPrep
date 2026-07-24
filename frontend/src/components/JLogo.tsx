@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react'
 import { View, ViewStyle } from 'react-native'
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg'

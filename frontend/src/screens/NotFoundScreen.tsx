@@ -36,7 +36,7 @@ export default function NotFoundScreen({ onHome }: { onHome?: () => void }) {
 
         <View style={styles.actions}>
           <Pressable onPress={onHome}>
-            <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+            <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
               <Home size={16} color="#fff" />
               <Text style={styles.ctaText}>Back to dashboard</Text>
             </LinearGradient>

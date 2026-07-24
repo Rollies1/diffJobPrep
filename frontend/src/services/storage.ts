@@ -6,7 +6,7 @@ import { Platform } from 'react-native'
 import * as SecureStore from 'expo-secure-store'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const canUseSecureStore = Platform.OS !== 'web' && SecureStore.isAvailable?.() !== false
+const canUseSecureStore = Platform.OS !== 'web' && true
 
 async function getItem(key: string): Promise<string | null> {
   if (canUseSecureStore) {

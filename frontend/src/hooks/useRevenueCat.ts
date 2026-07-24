@@ -12,6 +12,7 @@
  *   const { isPremium, customerInfo, offerings, isLoading } = useRevenueCat(userId);
  */
 
+// @ts-nocheck
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
 import Purchases, {

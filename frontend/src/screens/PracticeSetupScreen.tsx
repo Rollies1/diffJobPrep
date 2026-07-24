@@ -8,10 +8,10 @@ import { BreathingGradient, SectionTitle } from '../components/primitives'
 import { colors, gradients, shadows } from '../theme'
 
 const QUICK_CARDS = [
-  { tint: [colors.blue, colors.teal] as string[], title: 'Random mix', desc: '10 mixed Qs', emoji: '🎲' },
-  { tint: [colors.teal, colors.tealGreen] as string[], title: 'Weak spots', desc: 'Auto-targeted', emoji: '🎯' },
-  { tint: [colors.gold, colors.amber] as string[], title: 'Timed mock', desc: '45-min interview', emoji: '⏱️' },
-  { tint: [colors.amber, colors.orange] as string[], title: 'Custom', desc: 'Build your own', emoji: '⚙️' },
+  { tint: [colors.blue, colors.teal] as any, title: 'Random mix', desc: '10 mixed Qs', emoji: '🎲' },
+  { tint: [colors.teal, colors.tealGreen] as any, title: 'Weak spots', desc: 'Auto-targeted', emoji: '🎯' },
+  { tint: [colors.gold, colors.amber] as any, title: 'Timed mock', desc: '45-min interview', emoji: '⏱️' },
+  { tint: [colors.amber, colors.orange] as any, title: 'Custom', desc: 'Build your own', emoji: '⚙️' },
 ]
 
 export default function PracticeSetupScreen({
@@ -96,7 +96,7 @@ export default function PracticeSetupScreen({
                 ]}
               >
                 {qCount === n && (
-                  <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+                  <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
                 )}
                 <Text style={[styles.countText, qCount === n && styles.countTextActive]}>{n}</Text>
               </Pressable>
@@ -107,7 +107,7 @@ export default function PracticeSetupScreen({
         {/* Start button */}
         <View style={{ paddingHorizontal: 16, paddingTop: 24 }}>
           <Pressable onPress={onStartQuick} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
-            <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+            <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
               <Text style={styles.ctaText}>Start quick practice</Text>
               <ChevronRight size={16} color="#fff" />
             </LinearGradient>

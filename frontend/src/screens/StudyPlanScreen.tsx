@@ -24,10 +24,10 @@ const CALENDAR: Day[][] = [
 ].map(week => week.map(d => d ?? { day: null, intensity: 0 }))
 
 const TODAY_PLAN = [
-  { time: '9:00 AM', title: 'Two Pointers — 5 questions', deck: 'Algorithms', done: true, emoji: '🎯', tint: [colors.blue, colors.teal] as string[] },
-  { time: '1:30 PM', title: 'System Design: Caching', deck: 'System Design', done: true, emoji: '🏗️', tint: [colors.gold, colors.amber] as string[] },
-  { time: '6:00 PM', title: 'Behavioral: Leadership', deck: 'Behavioral', done: false, emoji: '🧭', tint: [colors.teal, colors.tealGreen] as string[] },
-  { time: '8:00 PM', title: 'Quick warmup — 3 questions', deck: 'Mixed', done: false, emoji: '⚡', tint: [colors.amber, colors.orange] as string[] },
+  { time: '9:00 AM', title: 'Two Pointers — 5 questions', deck: 'Algorithms', done: true, emoji: '🎯', tint: [colors.blue, colors.teal] as any },
+  { time: '1:30 PM', title: 'System Design: Caching', deck: 'System Design', done: true, emoji: '🏗️', tint: [colors.gold, colors.amber] as any },
+  { time: '6:00 PM', title: 'Behavioral: Leadership', deck: 'Behavioral', done: false, emoji: '🧭', tint: [colors.teal, colors.tealGreen] as any },
+  { time: '8:00 PM', title: 'Quick warmup — 3 questions', deck: 'Mixed', done: false, emoji: '⚡', tint: [colors.amber, colors.orange] as any },
 ]
 
 export default function StudyPlanScreen({ onTab }: { onTab?: (key: string) => void }) {
@@ -37,7 +37,7 @@ export default function StudyPlanScreen({ onTab }: { onTab?: (key: string) => vo
   const streak = stats?.streakDays ?? 13
   const doneCount = TODAY_PLAN.filter((p) => p.done).length
   const weeklyGoal = 25
-  const weeklyDone = activity?.reduce((s, a) => s + a.sessionsCompleted, 0) ?? 22
+  const weeklyDone = activity?.reduce((s: any, a: any) => s + a.sessionsCompleted, 0) ?? 22
   const weeklyPct = Math.round((weeklyDone / weeklyGoal) * 100)
 
   return (
@@ -161,7 +161,7 @@ export default function StudyPlanScreen({ onTab }: { onTab?: (key: string) => vo
         <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
           <View style={styles.goalCard}>
             <View style={styles.goalIcon}>
-              <LinearGradient colors={gradients.warm as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+              <LinearGradient colors={gradients.warm as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <Target size={18} color="#fff" />
               </LinearGradient>
             </View>
@@ -172,7 +172,7 @@ export default function StudyPlanScreen({ onTab }: { onTab?: (key: string) => vo
             <Text style={styles.goalPct}>{weeklyPct}%</Text>
           </View>
           <View style={styles.goalTrack}>
-            <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ height: 8, borderRadius: 4, width: `${weeklyPct}%` }} />
+            <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ height: 8, borderRadius: 4, width: `${weeklyPct}%` }} />
           </View>
         </View>
 
@@ -180,7 +180,7 @@ export default function StudyPlanScreen({ onTab }: { onTab?: (key: string) => vo
         <View style={{ paddingHorizontal: 16, marginTop: 16 }}>
           <View style={styles.aiCard}>
             <View style={styles.aiHeader}>
-              <LinearGradient colors={gradients.blueTeal as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
+              <LinearGradient colors={gradients.blueTeal as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, paddingVertical: 8 }}>
                 <Bot size={16} color="#fff" />
                 <Text style={styles.aiHeaderText}>AI study suggestion</Text>
               </LinearGradient>

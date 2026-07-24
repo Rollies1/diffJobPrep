@@ -44,4 +44,27 @@ export const questionService = {
     const { data } = await api.post<SyncResponse>('/questions/sync', body)
     return data
   },
+
+  /**
+   * GET /questions/random?categoryId=&deckId=&difficulty=&count=
+   * Returns lightweight question slots for ad-hoc practice sessions.
+   * categoryId / deckId / difficulty are all optional; count defaults to 5.
+   * difficulty, when provided, must be 'EASY' | 'MEDIUM' | 'HARD'.
+   */
+  getRandomQuestions: async (opts: {
+    categoryId?: string
+    deckId?: string
+    difficulty?: string
+    count?: number
+  }): Promise<{ questionId: string; questionText: string; expectedKeywords?: string[] }[]> => {
+    const { data } = await api.get('/questions/random', {
+      params: {
+        categoryId: opts.categoryId,
+        deckId: opts.deckId,
+        difficulty: opts.difficulty,
+        count: opts.count ?? 5,
+      },
+    })
+    return data
+  },
 }

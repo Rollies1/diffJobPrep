@@ -35,7 +35,7 @@ export default function OfflineScreen({ onRetry }: { onRetry?: () => void }) {
             <Animated.View style={[styles.ring1, ring1]} />
             <Animated.View style={[styles.ring2, ring2]} />
             <View style={styles.disc}>
-              <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+              <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <CloudOff size={48} color="#fff" strokeWidth={2} />
               </LinearGradient>
             </View>
@@ -43,7 +43,7 @@ export default function OfflineScreen({ onRetry }: { onRetry?: () => void }) {
           <Text style={styles.title}>You're offline</Text>
           <Text style={styles.sub}>We can't reach JobPrep right now. Don't worry — your progress is saved and some content is ready to keep you prepping.</Text>
           <Pressable onPress={onRetry} style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
-            <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+            <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
               <RefreshCw size={16} color="#fff" />
               <Text style={styles.ctaText}>Try reconnecting</Text>
             </LinearGradient>
@@ -107,7 +107,7 @@ function OfflineRow({ emoji, title, meta, tint }: { emoji: string; title: string
         <Text style={styles.rowMeta}>{meta}</Text>
       </View>
       <View style={styles.rowCheck}>
-        <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <Check size={14} color="#fff" strokeWidth={3} />
         </LinearGradient>
       </View>

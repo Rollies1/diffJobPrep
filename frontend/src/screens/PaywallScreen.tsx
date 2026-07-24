@@ -31,7 +31,7 @@ export default function PaywallScreen({ visible, onClose }: { visible: boolean; 
           <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 36, paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
             {/* Hero */}
             <View style={styles.heroIcon}>
-              <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+              <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <Crown size={32} color="#fff" />
               </LinearGradient>
             </View>
@@ -48,7 +48,7 @@ export default function PaywallScreen({ visible, onClose }: { visible: boolean; 
                     <Text style={styles.featureDesc}>{f.desc}</Text>
                   </View>
                   <View style={styles.featureCheck}>
-                    <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                       <Check size={12} color="#fff" strokeWidth={3} />
                     </LinearGradient>
                   </View>
@@ -65,7 +65,7 @@ export default function PaywallScreen({ visible, onClose }: { visible: boolean; 
 
             {/* CTA */}
             <Pressable style={({ pressed }) => [{ opacity: pressed ? 0.9 : 1 }]}>
-              <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
+              <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.cta}>
                 <Sparkles size={16} color="#fff" />
                 <Text style={styles.ctaText}>Start 7-day free trial</Text>
               </LinearGradient>
@@ -96,7 +96,7 @@ function PlanCard({ label, price, sub, active, onPress, badge }: { label: string
         { opacity: pressed ? 0.95 : 1 },
       ]}
     >
-      {active && <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
+      {active && <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />}
       {badge !== '' && (
         <View style={[styles.planBadge, active && { overflow: 'hidden' }]}>
           {active ? (
@@ -105,7 +105,7 @@ function PlanCard({ label, price, sub, active, onPress, badge }: { label: string
             </View>
           ) : (
             <View style={{ overflow: 'hidden', borderRadius: 999 }}>
-              <LinearGradient colors={gradients.primary as string[]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 6, paddingVertical: 1 }}>
+              <LinearGradient colors={gradients.primary as any} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ paddingHorizontal: 6, paddingVertical: 1 }}>
                 <Text style={styles.planBadgeText}>{badge}</Text>
               </LinearGradient>
             </View>

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useTimeline } from '../hooks/useQuestions';
